@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import './admin.css';
 
 const AdminDashboard = () => {
@@ -26,22 +27,23 @@ const AdminDashboard = () => {
         <h2>Admin Console</h2>
         <nav className="sidebar-nav">
           {menuItems.map((item) => {
-          // Exact path matching to prevent multiple active states
-          const isActive = location.pathname === item.path;
-              
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`nav-item ${isActive ? 'active' : ''}`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+            // Exact path matching to prevent multiple active states
+            const isActive = location.pathname === item.path;
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`nav-item ${isActive ? 'active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
+            <LogOut size={18} />
             Logout
           </button>
         </div>

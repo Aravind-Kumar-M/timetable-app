@@ -22,13 +22,20 @@ const FacultyHome = () => {
   };
 
   return (
-    <div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Welcome, {userName}</h1>
+    <div className="dashboard-fade-in">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+            Dashboard Overview
+          </h1>
+          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            Welcome back, {userName}
+          </p>
+        </div>
 
         <div className="notification-wrapper" style={{ position: 'relative' }}>
           <button onClick={toggleNotifications} className="notification-icon-btn">
-            <Bell size={24} color="#2d3748" />
+            <Bell size={24} color="var(--text-main)" />
             {notifications.length > 0 && (
               <span className="notification-badge">{notifications.length}</span>
             )}
@@ -36,7 +43,10 @@ const FacultyHome = () => {
 
           {showNotifications && (
             <div className="notification-dropdown">
-              <div className="notification-header">Notifications</div>
+              <div className="notification-header">
+                <span>Notifications</span>
+                <span style={{ fontSize: '0.8rem', background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '12px' }}>{notifications.length} New</span>
+              </div>
               <div className="notification-list">
                 {notifications.length > 0 ? (
                   notifications.map(note => (
@@ -46,7 +56,7 @@ const FacultyHome = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="notification-empty">No new notifications</div>
+                  <div className="notification-empty">All caught up!</div>
                 )}
               </div>
               {notifications.length > 0 && (
@@ -59,17 +69,22 @@ const FacultyHome = () => {
         </div>
       </div>
 
-      <div className="faculty-dashboard-grid">
-        <div className="stat-card" onClick={() => navigate('/faculty/requests')} style={{ borderTop: '4px solid #ecc94b' }}>
-          <h3>Pending Requests</h3>
-          <div className="stat-value" style={{ color: '#d69e2e' }}>3</div>
-          <div className="stat-subtitle">Rescheduling approvals needed</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div className="modern-card" onClick={() => navigate('/faculty/requests')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--warning)', cursor: 'pointer', transition: 'var(--transition)' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Pending Requests</h3>
+          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--warning)', marginBottom: '0.5rem' }}>3 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Needed</span></div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ padding: '0.5rem 1rem', background: 'var(--warning-light)', color: 'var(--warning)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>Rescheduling Approvals</div>
+          </div>
         </div>
 
-        <div className="stat-card" onClick={() => navigate('/faculty/timetable')} style={{ borderTop: '4px solid #48bb78', cursor: 'pointer' }}>
-          <h3>Weekly Workload</h3>
-          <div className="stat-value" style={{ color: '#2f855a' }}>16 Hrs</div>
-          <div className="stat-subtitle">4 Theory / 2 Labs</div>
+        <div className="modern-card" onClick={() => navigate('/faculty/timetable')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--success)', cursor: 'pointer', transition: 'var(--transition)' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Weekly Workload</h3>
+          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.5rem' }}>16 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Hours</span></div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ padding: '0.5rem 1rem', background: 'var(--success)', color: 'white', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>4 Theory</div>
+            <div style={{ padding: '0.5rem 1rem', background: 'var(--success)', color: 'white', borderRadius: 'var(--radius-md)', fontWeight: 500, opacity: 0.8 }}>2 Labs</div>
+          </div>
         </div>
       </div>
     </div>

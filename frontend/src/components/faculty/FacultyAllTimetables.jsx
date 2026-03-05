@@ -95,9 +95,12 @@ const FacultyAllTimetables = () => {
     };
 
     return (
-        <div style={{ padding: '1rem', width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ margin: 0, color: '#2d3748' }}>All Class Timetables</h2>
+        <div className="dashboard-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>All Class Timetables</h2>
+                    <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>View and filter all department schedules</p>
+                </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -158,75 +161,22 @@ const FacultyAllTimetables = () => {
                 </div>
             </div>
 
-            <div className="timetable-view" style={{ width: '100%', overflowX: 'auto' }}>
-                <h3 style={{ marginBottom: '1rem', color: '#4a5568' }}>Timetable for {selectedDepartment} - Sem {selectedSemester} - Section {selectedSection} ({selectedAcademicYear})</h3>
-                <table
-                    style={{
-                        width: '100%',
-                        borderCollapse: 'collapse',
-                        tableLayout: 'fixed',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#fff',
-                        border: '2px solid #2d3748'
-                    }}
-                >
+            <div className="timetable-wrapper" style={{ width: '100%', overflow: 'hidden', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', position: 'relative' }}>
+                <h3 style={{ margin: '1rem', color: 'var(--text-main)' }}>Timetable for {selectedDepartment} - Sem {selectedSemester} - Section {selectedSection} ({selectedAcademicYear})</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
                     <thead>
                         <tr>
-                            <th
-                                rowSpan="2"
-                                style={{
-                                    backgroundColor: '#558b2f',
-                                    color: '#fff',
-                                    border: '1px solid #1b5e20',
-                                    padding: '0.5rem',
-                                    width: '100px',
-                                    verticalAlign: 'middle'
-                                }}
-                            >
-                                Time/Day
+                            <th style={{ position: 'sticky', top: 0, left: 0, zIndex: 20, background: '#60a550', padding: '0.75rem', borderBottom: '2px solid var(--border)', borderRight: '2px solid var(--border)', width: '70px', color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                                    Time/Day
+                                </div>
                             </th>
-
                             {timetableStructure.map((item) => {
                                 const isLunch = item.type === 'lunch';
-                                if (item.type === 'break') return <th key={item.id} rowSpan="2" style={{ width: '20px', backgroundColor: '#fff', border: '1px solid #cbd5e0', padding: 0 }}></th>;
-
                                 return (
-                                    <th
-                                        key={item.id}
-                                        style={{
-                                            textAlign: 'center',
-                                            padding: '0.5rem',
-                                            backgroundColor: isLunch ? '#558b2f' : '#558b2f',
-                                            color: '#fff',
-                                            border: '1px solid #1b5e20',
-                                            fontSize: '0.8rem',
-                                            whiteSpace: 'nowrap',
-                                            width: isLunch ? 'auto' : 'auto'
-                                        }}
-                                    >
-                                        {item.label}
-                                    </th>
-                                );
-                            })}
-                        </tr>
-
-                        <tr>
-                            {timetableStructure.map((item) => {
-                                if (item.type === 'break') return null;
-                                return (
-                                    <th
-                                        key={`time-${item.id}`}
-                                        style={{
-                                            textAlign: 'center',
-                                            padding: '0.25rem',
-                                            fontSize: '0.7rem',
-                                            backgroundColor: '#558b2f',
-                                            color: '#fff',
-                                            border: '1px solid #1b5e20',
-                                            fontWeight: 'normal'
-                                        }}
-                                    >
-                                        {item.time}
+                                    <th key={item.id} style={{ position: 'sticky', top: 0, zIndex: 10, background: isLunch ? '#19a7b3' : '#60a550', padding: isLunch ? '0.5rem 0.1rem' : '0.5rem', borderBottom: '2px solid var(--border)', borderRight: '1px solid var(--border)', color: 'white', width: isLunch ? '30px' : 'auto' }}>
+                                        <div style={{ fontWeight: 600, fontSize: '0.8rem', color: 'white', ...(isLunch && { writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto' }) }}>{item.label}</div>
+                                        {!isLunch && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.9)', marginTop: '0.2rem', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>{item.time}</div>}
                                     </th>
                                 );
                             })}
@@ -234,81 +184,30 @@ const FacultyAllTimetables = () => {
                     </thead>
 
                     <tbody>
-                        {days.map((day, index) => (
-                            <tr key={day}>
-                                <td
-                                    style={{
-                                        fontWeight: 'bold',
-                                        backgroundColor: '#fff9c4',
-                                        border: '1px solid #fbc02d',
-                                        padding: '0.5rem',
-                                        textAlign: 'center',
-                                        color: '#000'
-                                    }}
-                                >
+                        {days.map((day, dayIdx) => (
+                            <tr key={day} style={{ transition: 'var(--transition)' }}>
+                                <td style={{ position: 'sticky', left: 0, zIndex: 15, padding: '0.75rem', background: '#fee8a4', borderBottom: '1px solid var(--border)', borderRight: '2px solid var(--border)', fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)', textAlign: 'center' }}>
                                     {day}
                                 </td>
 
                                 {timetableStructure.map((item) => {
-                                    if (item.type === 'break') {
-                                        return <td key={item.id} style={{ backgroundColor: '#fff', border: '1px solid #bdbdbd' }}></td>;
+                                    if (item.type === 'lunch') {
+                                        if (dayIdx === 0) return <td key={item.id} rowSpan={days.length} style={{ background: '#19a7b3', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', textAlign: 'center', color: 'white', fontWeight: 600, padding: 0 }}><div style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto', letterSpacing: '4px' }}>LUNCH BREAK</div></td>;
+                                        return null;
                                     }
 
-                                    if (item.type === 'lunch') {
-                                        if (index === 0) {
-                                            return (
-                                                <td
-                                                    key={item.id}
-                                                    rowSpan={days.length}
-                                                    style={{
-                                                        backgroundColor: '#00acc1',
-                                                        border: '1px solid #00838f',
-                                                        textAlign: 'center',
-                                                        verticalAlign: 'middle',
-                                                        color: '#fff',
-                                                        fontWeight: 'bold',
-                                                        writingMode: 'vertical-lr',
-                                                        transform: 'rotate(180deg)'
-                                                    }}
-                                                >
-                                                    {item.label}
-                                                </td>
-                                            );
-                                        } else {
-                                            return null;
-                                        }
-                                    }
                                     const slotData = getSlotContent(day, item.id);
 
                                     return (
-                                        <td
-                                            key={item.id}
-                                            style={{
-                                                textAlign: 'center',
-                                                border: '1px solid #cbd5e0',
-                                                backgroundColor: '#fff',
-                                                padding: '0.25rem',
-                                                height: '60px',
-                                                verticalAlign: 'middle'
-                                            }}
-                                        >
+                                        <td key={item.id} className="timetable-cell" style={{ position: 'relative', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', padding: '0.35rem', height: '80px', background: 'transparent', transition: 'var(--transition)' }}>
                                             {slotData ? (
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#2d3748' }}>
-                                                        {slotData.courseCode || slotData.subject || 'N/A'}
-                                                    </div>
-                                                    <div style={{ fontSize: '0.7rem', color: '#718096' }}>
-                                                        {slotData.venue || slotData.room || slotData.roomNumber || 'Room N/A'}
-                                                    </div>
-                                                    {slotData.facultyName && (
-                                                        <div style={{ fontSize: '0.65rem', color: '#4a5568', marginTop: '2px' }}>
-                                                            {/* Abbreviate or show first name to save space */}
-                                                            {slotData.facultyName.split(' ')[0]}
-                                                        </div>
-                                                    )}
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#d1f0fa', borderRadius: 'var(--radius-sm)', padding: '0.25rem', border: '1px solid transparent', transition: 'var(--transition)' }}>
+                                                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#1f2937' }}>{slotData.courseCode || slotData.subject || 'N/A'}</span>
+                                                    <span style={{ fontSize: '0.7rem', color: '#4b5563', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>{slotData.venue || slotData.room || slotData.roomNumber || 'Room N/A'}</span>
+                                                    {slotData.facultyName && <span style={{ fontSize: '0.65rem', background: 'rgba(0,0,0,0.05)', color: '#4b5563', padding: '2px 6px', borderRadius: '10px', marginTop: '0.25rem', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{slotData.facultyName.split(' ')[0]}</span>}
                                                 </div>
                                             ) : (
-                                                <span style={{ color: '#cbd5e0' }}>-</span>
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: 'transparent' }}>-</span></div>
                                             )}
                                         </td>
                                     );

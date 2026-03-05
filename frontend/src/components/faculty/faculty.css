@@ -2,63 +2,87 @@
   display: flex;
   min-height: 100vh;
   width: 100vw;
-  background-color: #ffff;
-  color: #333;
+  background-color: var(--bg);
+  color: var(--text-main);
+  overflow-x: hidden;
 }
 
 .faculty-sidebar {
-  width: 260px;
-  background-color: #1a202c;
-  /* Distinct blue for faculty */
-  color: white;
+  width: 280px;
+  background: #0f172a;
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 0;
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  z-index: 100;
   overflow-y: auto;
+  z-index: 100;
+  transition: var(--transition);
+  color: var(--sidebar-text);
 }
 
 .faculty-sidebar h2 {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #63b3ed;
-  color: #fff;
+  font-size: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .sidebar-nav {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
+  gap: 0.25rem;
 }
 
 .nav-item {
-  display: block;
-  padding: 0.8rem 1rem;
-  color: #bee3f8;
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  margin-bottom: 0;
+  border-radius: 0;
+  color: var(--sidebar-text);
   text-decoration: none;
-  border-radius: 6px;
+  font-weight: 500;
   transition: all 0.2s;
+  border-left: 3px solid transparent;
 }
 
-.nav-item:hover,
+.nav-item:hover {
+  background-color: var(--sidebar-hover);
+  color: #ffffff;
+}
+
 .nav-item.active {
-  background-color: #4299e1;
-  color: white;
-  transform: translateX(5px);
+  background: var(--sidebar-active);
+  color: #ffffff;
+  font-weight: 600;
+  border-left: 3px solid var(--primary);
+}
+
+.sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .faculty-content {
-  margin-left: 260px;
   flex: 1;
-  padding: 2rem;
+  padding: 2.5rem;
+  margin-left: 280px;
+  width: calc(100% - 280px);
   min-height: 100vh;
+  transition: var(--transition);
 }
 
 .faculty-dashboard-grid {
@@ -345,20 +369,23 @@
 
 /* Logout Button (Copied from Student) */
 .logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   background-color: #ffffff !important;
-  color: #1a202c;
+  color: #1e293b;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .logout-btn:hover {
-  background-color: #f7fafc !important;
-}
-
-font-weight: 600;
+  background-color: #fff5f5 !important;
+  color: #e53e3e;
 }

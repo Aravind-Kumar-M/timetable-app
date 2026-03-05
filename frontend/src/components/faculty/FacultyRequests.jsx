@@ -48,9 +48,12 @@ const FacultyRequests = () => {
     };
 
     return (
-        <div>
-            <div className="page-header">
-                <h1>Rescheduling Requests</h1>
+        <div className="dashboard-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>Rescheduling Requests</h2>
+                    <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Manage requested slot changes</p>
+                </div>
             </div>
 
             <div style={{ maxWidth: '1000px', margin: '0 auto' }}>

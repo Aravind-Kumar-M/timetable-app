@@ -47,7 +47,9 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert(`Login error: ${error.message}`);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        alert(`Login error: ${error.message}`);
+      }
     }
   };
 

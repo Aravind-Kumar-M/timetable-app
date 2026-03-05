@@ -39,15 +39,13 @@ const FacultySlotEnquiry = () => {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: 'calc(100vh - 100px)', // Adjust height for vertical centering
-            width: '100%'
-        }}>
-            <h2 style={{ marginBottom: '1.5rem', color: '#2d3748', textAlign: 'center' }}>Slot Availability Enquiry</h2>
+        <div className="dashboard-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>Slot Enquiry</h2>
+                    <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Check availability of class slots</p>
+                </div>
+            </div>
 
             <div className="form-card" style={{ maxWidth: '500px', width: '100%' }}>
                 <form onSubmit={handleSubmit}>
