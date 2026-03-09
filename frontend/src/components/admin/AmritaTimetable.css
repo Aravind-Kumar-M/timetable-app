@@ -45,7 +45,7 @@
 }
 
 .timetable-grid-wrapper {
-  overflow: hidden;
+  overflow-x: auto;
   background-color: white;
   border: 2px solid #333;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -54,6 +54,7 @@
 .timetable-grid {
   width: 100%;
   border-collapse: collapse;
+  min-width: 1400px;
 }
 
 .timetable-grid th,
@@ -80,16 +81,17 @@
 .day-cell {
   background-color: #f9e79f;
   font-weight: bold;
+  min-width: 100px;
   position: sticky;
   left: 0;
   z-index: 10;
 }
 
 .timetable-cell {
-  min-height: 50px;
-  font-size: 0.8rem;
+  min-width: 100px;
+  min-height: 60px;
+  font-size: 0.85rem;
   transition: all 0.2s;
-  padding: 0.25rem;
 }
 
 .timetable-cell:hover {
@@ -101,10 +103,10 @@
   background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
   color: white;
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: 1rem;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  padding: 0.25rem;
+  min-width: 40px;
 }
 
 .course-tables {
@@ -170,23 +172,23 @@
   .amrita-timetable-container {
     padding: 0.5rem;
   }
-
+  
   .timetable-header h2 {
     font-size: 1.2rem;
   }
-
+  
   .config-row {
     flex-direction: column;
     gap: 0.5rem;
   }
-
+  
   .timetable-grid {
     font-size: 0.75rem;
   }
-
+  
   .timetable-cell {
-    min-width: unset;
-    min-height: 40px;
-    padding: 0.15rem;
+    min-width: 80px;
+    min-height: 50px;
+    padding: 0.25rem;
   }
 }

@@ -24,4 +24,3 @@ services:
     tty: true
     environment:
       - VITE_WATCH_USEPOLLING=true
-      - BACKEND_URL=http://backend:3000

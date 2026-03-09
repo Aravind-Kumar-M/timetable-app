@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, List, Moon, Sun, LogOut } from 'lucide-react';
 import './student.css';
 
 const StudentDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [userRole, setUserRole] = useState('student');
+    const [userRole, setUserRole] = useState('student'); // Default to normal student
     const [userName, setUserName] = useState('Student');
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
     useEffect(() => {
-        const email = localStorage.getItem('lastLoginEmail');
+        const email = localStorage.getItem('lastLoginEmail'); // We'll need to set this in Login
         if (email) {
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             const user = users.find(u => u.email === email);
@@ -22,17 +20,6 @@ const StudentDashboard = () => {
         }
     }, []);
 
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
-
-    const lastLoginTime = localStorage.getItem('lastLoginTime');
-
     const handleLogout = () => {
         localStorage.removeItem('lastLoginEmail');
         navigate('/');
@@ -41,21 +28,24 @@ const StudentDashboard = () => {
     const isCR = userRole === 'class_rep';
 
     const menuItems = [
-        { path: '/student', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-        { path: '/student/timetable', label: 'Class Timetable', icon: <Calendar size={20} /> },
-        { path: '/student/all-timetables', label: 'All Class Timetables', icon: <List size={20} /> },
+        { path: '/student', label: 'Dashboard' },
+        { path: '/student/timetable', label: 'Class Timetable' },
+        // Only show Reschedule option if user is CR
+        ...(isCR ? [{ path: '/student/reschedule', label: 'Reschedule Request (CR)', isSpecial: true }] : []),
     ];
 
     return (
         <div className="student-container">
             <aside className="student-sidebar">
-                <h2 onClick={() => navigate('/student')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ color: 'var(--primary)' }}>Edu</span>Portal
-                </h2>
+                <h2>Student Portal</h2>
+                <div style={{marginBottom: '1rem', color: '#c6f6d5'}}>
+                    {isCR && <span className="cr-badge" style={{marginTop:'0.5rem', display:'inline-block'}}>Class Rep</span>}
+                </div>
+
                 <nav className="sidebar-nav">
                     {menuItems.map((item) => {
-                        const isActive = item.path === '/student'
-                            ? location.pathname === '/student'
+                         const isActive = item.path === '/student' 
+                            ? location.pathname === '/student' 
                             : location.pathname.startsWith(item.path);
 
                         return (
@@ -63,25 +53,23 @@ const StudentDashboard = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`nav-item ${isActive ? 'active' : ''}`}
+                                style={item.isSpecial ? {color: '#fbd38d', fontWeight: 'bold'} : {}}
                             >
-                                <span style={{ marginRight: '12px', display: 'flex' }}>{item.icon}</span>
                                 {item.label}
                             </Link>
                         );
                     })}
                 </nav>
-
+                
                 <div className="sidebar-footer">
-
-                    <button className="logout-btn" onClick={handleLogout}>
-                        <LogOut size={18} />
+                    <button className="logout-btn" style={{backgroundColor: '#22543d'}} onClick={handleLogout}>
                         Logout
                     </button>
                 </div>
             </aside>
 
             <main className="student-content">
-                <Outlet context={{ isCR, userRole, userName, lastLoginTime }} />
+                <Outlet context={{ isCR, userRole, userName }} />
             </main>
         </div>
     );

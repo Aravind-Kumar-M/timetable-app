@@ -26,10 +26,6 @@ const Login = () => {
       }
       const data = await res.json();
       if (data.success && data.user) {
-        // Store login time
-        localStorage.setItem('lastLoginTime', new Date().toLocaleString());
-        localStorage.setItem('lastLoginEmail', data.user.email);
-
         // Route based on role (backend returns: Admin, Faculty, Student)
         const role = data.user.role.toLowerCase();
         if (role === 'admin') {
@@ -44,13 +40,14 @@ const Login = () => {
         }
       } else {
         console.error('Login failed:', data.message);
-        alert(`Login failed: ${data.message}`);
+        alert('Login failed. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        alert(`Login error: ${error.message}`);
-      }
+      alert('Login failed. Please try again.');
+  
+
+   
     }
   };
 
@@ -58,14 +55,14 @@ const Login = () => {
     <div className="home-container">
       <div className="form-card" style={{ maxWidth: '650px', width: '100%' }}>
         <h2 className="form-title">Sign In</h2>
-        <button
-          onClick={handleMicrosoftLogin}
-          className="btn-primary"
+        <button 
+          onClick={handleMicrosoftLogin} 
+          className="btn-primary" 
           style={{ width: '100%', marginTop: '1rem' }}
         >
           Login with Microsoft
         </button>
-
+     
       </div>
     </div>
   );

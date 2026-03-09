@@ -1,93 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-
 :root {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  /* Institutional Theme Colors */
-  --primary: #2563eb;
-  /* Subdued blue */
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
+  /* Theme Colors */
+  --primary: #3182ce;
+  --primary-hover: #2b6cb0;
 
-  --admin-theme: #1e3a8a;
-  --faculty-theme: #334155;
-  --student-theme: #1e40af;
-  --student-theme-gradient: #1e40af;
-  /* Removed gradients */
-  --student-theme-light: #eff6ff;
+  --admin-theme: #2c5282;
+  --faculty-theme: #319795;
+  --student-theme: #38a169;
 
-  --bg: #fafafa;
+  --bg: #f7fafc;
   --card-bg: #ffffff;
-  --surface: #ffffff;
-  --surface-hover: #f1f5f9;
 
-  --text-main: #1f2937;
-  /* Formal slate */
-  --text-muted: #6b7280;
-  /* Secondary grey */
-  --text-light: #9ca3af;
+  --text-main: #2d3748;
+  --text-muted: #718096;
+  --text-light: #a07d7d;
 
-  --border: #e5e7eb;
-  --border-light: #f3f4f6;
-
-  --danger: #991b1b;
-  /* Dark academic red */
-  --danger-light: #fef2f2;
-  --warning: #92400e;
-  /* Subtle amber */
-  --warning-light: #fffbeb;
-  --success: #166534;
-  /* Deep green */
-
-  --sidebar-bg: #111827;
-  /* Navy/Charcoal sidebar */
-  --sidebar-text: #d1d5db;
-  --sidebar-hover: #1f2937;
-  --sidebar-active: #374151;
-
-  /* Elevational minimalism instead of heavy shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-glow: none;
-  /* Removed glows */
-
-  /* Sharper borders for institutional feel */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-full: 9999px;
-
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme='dark'] {
-  --bg: #111827;
-  --card-bg: rgba(31, 41, 55, 1);
-  --surface: #1f2937;
-  --surface-hover: #374151;
-
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --text-light: #6b7280;
-
-  --border: #374151;
-  --border-light: #1f2937;
-
-  --student-theme-light: rgba(37, 99, 235, 0.15);
-  --primary-light: rgba(37, 99, 235, 0.15);
-  --danger-light: rgba(153, 27, 27, 0.25);
-  --warning-light: rgba(146, 64, 14, 0.25);
-
-  --sidebar-bg: #030712;
-  --sidebar-text: #9ca3af;
-  --sidebar-hover: #1f2937;
-  --sidebar-active: #374151;
-
-  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 *,
@@ -105,36 +39,10 @@ body {
   overflow-x: hidden;
   background-color: var(--bg);
   color: var(--text-main);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
   min-height: 100vh;
-}
-
-.dashboard-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.modern-card {
-  transition: var(--transition);
-}
-
-.modern-card:hover {
-  box-shadow: var(--shadow-lg), var(--shadow-glow);
-  transform: translateY(-2px);
 }
 
 #root {

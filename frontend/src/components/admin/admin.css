@@ -14,7 +14,7 @@
   flex-direction: column;
   padding: 1rem;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  position: fixed;
+  position: fixed;   
   top: 0;
   left: 0;
   height: 100vh;
@@ -58,25 +58,18 @@
 }
 
 .logout-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: #ffffff;
-  color: #1e293b;
+  background-color: #e53e3e;
   border: none;
+  padding: 0.8rem;
+  color: white;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-weight: bold;
 }
 
 .logout-btn:hover {
-  background-color: #fff5f5;
-  color: #e53e3e;
+  background-color: #c53030;
 }
 
 .admin-content {

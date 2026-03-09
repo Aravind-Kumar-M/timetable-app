@@ -1,6 +1,5 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
 import './admin.css';
 
 const AdminDashboard = () => {
@@ -44,7 +43,6 @@ const AdminDashboard = () => {
         </nav>
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={18} />
             Logout
           </button>
         </div>
