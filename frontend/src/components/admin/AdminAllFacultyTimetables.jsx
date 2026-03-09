@@ -135,6 +135,94 @@ const FacultyGrid = ({ faculty, data }) => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Split Schedule Summary into Theory and Labs */}
+                    {(() => {
+                        const theoryCourses = {};
+                        const labCourses = {};
+
+                        if (data?.slots) {
+                            data.slots.forEach(s => {
+                                if (!s.isSpanContinuation) {
+                                    const key = `${s.courseCode}-${s.department}-${s.section}`;
+                                    const targetMap = s.sessionType === 'Lab' ? labCourses : theoryCourses;
+
+                                    if (!targetMap[key]) {
+                                        targetMap[key] = {
+                                            courseCode: s.courseCode,
+                                            department: s.department,
+                                            section: s.section,
+                                            sessionType: s.sessionType || 'Theory',
+                                            venue: s.venue,
+                                            sessions: 0
+                                        };
+                                    }
+                                    targetMap[key].sessions += 1;
+                                }
+                            });
+                        }
+
+                        const theoryList = Object.values(theoryCourses);
+                        const labList = Object.values(labCourses);
+
+                        return (
+                            <div className="course-tables">
+                                {/* Core/Theory Courses */}
+                                {theoryList.length > 0 && (
+                                    <div className="course-table-section">
+                                        <h3>Theory Classes</h3>
+                                        <table className="course-info-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Course Code</th>
+                                                    <th>Class</th>
+                                                    <th>Venue</th>
+                                                    <th>Sessions / Week</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {theoryList.map((c, i) => (
+                                                    <tr key={i}>
+                                                        <td>{c.courseCode}</td>
+                                                        <td>{c.department} - {c.section}</td>
+                                                        <td>{c.venue || 'TBD'}</td>
+                                                        <td>{c.sessions}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {/* Lab Courses */}
+                                {labList.length > 0 && (
+                                    <div className="course-table-section">
+                                        <h3>Component Lab</h3>
+                                        <table className="course-info-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Course Code</th>
+                                                    <th>Class</th>
+                                                    <th>Venue</th>
+                                                    <th>Sessions / Week</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {labList.map((c, i) => (
+                                                    <tr key={i}>
+                                                        <td>{c.courseCode}</td>
+                                                        <td>{c.department} - {c.section}</td>
+                                                        <td>{c.venue || 'TBD'}</td>
+                                                        <td>{c.sessions}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </>
             )}
         </div>

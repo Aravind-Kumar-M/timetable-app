@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Maximize2, Minimize2, Clock, MapPin, Users } from 'lucide-react';
+import '../admin/AmritaTimetable.css';
 
 const StudentTimetable = () => {
-    const [isCompact, setIsCompact] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -10,59 +10,136 @@ const StudentTimetable = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const timetableStructure = [
-        { type: 'slot', id: 1, label: 'Slot 1', time: '08:00 - 08:50' },
-        { type: 'slot', id: 2, label: 'Slot 2', time: '08:50 - 09:40' },
-        { type: 'slot', id: 3, label: 'Slot 3', time: '09:40 - 10:30' },
-        { type: 'slot', id: 4, label: 'Slot 4', time: '10:45 - 11:35' },
-        { type: 'slot', id: 5, label: 'Slot 5', time: '11:35 - 12:25' },
-        { type: 'slot', id: 6, label: 'Slot 6', time: '12:25 - 13:15' },
-        { type: 'lunch', id: 'lb', label: 'Lunch Break', time: '13:15 - 14:05' },
-        { type: 'slot', id: 7, label: 'Slot 7', time: '14:05 - 14:55' },
-        { type: 'slot', id: 8, label: 'Slot 8', time: '14:55 - 15:45' },
-        { type: 'slot', id: 9, label: 'Slot 9', time: '15:45 - 16:35' },
-        { type: 'slot', id: 10, label: 'Slot 10', time: '16:35 - 17:25' }
+    // Slot structure matches AmritaTimetable
+    const slots = [
+        { number: 1, start: '08:00', end: '09:00' },
+        { number: 2, start: '09:00', end: '10:00' },
+        { number: 3, start: '10:00', end: '11:00' },
+        { number: 4, start: '11:00', end: '12:00' },
+        { number: 5, start: '12:00', end: '13:00' }, // Lunch
+        { number: 6, start: '13:00', end: '14:00' },
+        { number: 7, start: '14:00', end: '15:00' },
+        { number: 8, start: '15:00', end: '16:00' },
+        { number: 9, start: '16:00', end: '17:00' }
     ];
 
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-    const SCHEDULE_DATA = {
-        'Monday': { 1: { code: 'CS201', type: 'Lecture', room: 'Room 301', faculty: 'Dr. Smith' }, 2: { code: 'CS201', type: 'Lecture', room: 'Room 301', faculty: 'Dr. Smith' }, 4: { code: 'CS204', type: 'Lab', room: 'Lab 2', faculty: 'Prof. Allen' }, 5: { code: 'CS204', type: 'Lab', room: 'Lab 2', faculty: 'Prof. Allen' } },
-        'Tuesday': { 2: { code: 'CS202', type: 'Lecture', room: 'Room 202', faculty: 'Dr. Jones' }, 3: { code: 'CS203', type: 'Lecture', room: 'Room 205', faculty: 'Dr. Brown' }, 8: { code: 'CS205', type: 'Lab', room: 'Lab 1', faculty: 'Prof. Clark' }, 9: { code: 'CS205', type: 'Lab', room: 'Lab 1', faculty: 'Prof. Clark' } },
-        'Wednesday': { 1: { code: 'CS203', type: 'Lecture', room: 'Room 205', faculty: 'Dr. Brown' }, 4: { code: 'CS201', type: 'Lecture', room: 'Room 301', faculty: 'Dr. Smith' }, 7: { code: 'CS206', type: 'Lecture', room: 'Room 101', faculty: 'Dr. Evans' } },
-        'Thursday': { 3: { code: 'CS202', type: 'Lecture', room: 'Room 202', faculty: 'Dr. Jones' }, 5: { code: 'CS206', type: 'Lecture', room: 'Room 101', faculty: 'Dr. Evans' }, 8: { code: 'CS204', type: 'Lecture', room: 'Room 304', faculty: 'Prof. Allen' } },
-        'Friday': { 2: { code: 'CS205', type: 'Lecture', room: 'Room 205', faculty: 'Prof. Clark' }, 6: { code: 'CS203', type: 'Lecture', room: 'Room 205', faculty: 'Dr. Brown' }, 9: { code: 'CS201', type: 'Lab', room: 'Lab 3', faculty: 'Dr. Smith' }, 10: { code: 'CS201', type: 'Lab', room: 'Lab 3', faculty: 'Dr. Smith' } }
+    // Mock Timetable Data matching Amrita format
+    const timetableData = {
+        department: 'CSE',
+        semester: 'Odd',
+        program: 'B.Tech',
+        section: 'A',
+        classAdvisors: [{ name: 'Dr. Priya Sharma' }, { name: 'Dr. Ramesh Krishnan' }],
+        timetableSlots: [
+            { day: 'Monday', slotNumber: 1, courseCode: '23CSE312-S5', sessionType: 'Theory', venue: 'ABIII - D103' },
+            { day: 'Monday', slotNumber: 2, courseCode: '23CSE313-S5', sessionType: 'Lab', venue: 'ABIII - CP LAB 1', spanSlots: 2 },
+            { day: 'Monday', slotNumber: 3, isSpanContinuation: true },
+            { day: 'Tuesday', slotNumber: 2, courseCode: '23CSE313-S5', sessionType: 'Lab', venue: 'ABIII - CP LAB 1', spanSlots: 2 },
+            { day: 'Tuesday', slotNumber: 3, isSpanContinuation: true },
+            { day: 'Tuesday', slotNumber: 7, courseCode: '23CSE313-S5', sessionType: 'Theory', venue: 'ABIII - CP LAB 1' },
+            { day: 'Tuesday', slotNumber: 8, courseCode: '23CSE314-S5', sessionType: 'Theory', venue: 'ABIII - D102' },
+            { day: 'Wednesday', slotNumber: 3, courseCode: '23CSE315L-S5', sessionType: 'Lab', venue: 'ABIII - HW LAB 1', spanSlots: 3 },
+            { day: 'Wednesday', slotNumber: 4, isSpanContinuation: true },
+            { day: 'Thursday', slotNumber: 3, courseCode: '23CSE312-S5', sessionType: 'Theory', venue: 'ABIII - D103' },
+            { day: 'Thursday', slotNumber: 7, courseCode: '23CSE314-S5', sessionType: 'Theory', venue: 'ABIII - D102' },
+            { day: 'Thursday', slotNumber: 8, courseCode: '23CSE312-S5', sessionType: 'Theory', venue: 'ABIII - D103' },
+            { day: 'Friday', slotNumber: 1, courseCode: '23CSE311-S5', sessionType: 'Theory', venue: 'ABIII - HW LAB 1' },
+            { day: 'Friday', slotNumber: 4, courseCode: '23CSE314-S5', sessionType: 'Theory', venue: 'ABIII - D102' }
+        ],
+        courses: [
+            {
+                courseType: 'Core', courseCode: '23CSE311-S5', courseName: 'Data Structures II',
+                faculty: [{ name: 'Dr. Rajesh Kumar' }], venue: 'ABIII - HW LAB 1'
+            },
+            {
+                courseType: 'Core', courseCode: '23CSE312-S5', courseName: 'Database Management Systems II',
+                faculty: [{ name: 'Dr. Priya Sharma' }], venue: 'ABIII - D103'
+            },
+            {
+                courseType: 'Core', courseCode: '23CSE313-S5', courseName: 'Operating Systems II',
+                faculty: [{ name: 'Dr. Arun Menon' }], venue: 'ABIII - CP LAB 1'
+            },
+            {
+                courseType: 'Core', courseCode: '23CSE314-S5', courseName: 'Computer Networks II',
+                faculty: [{ name: 'Ms. Divya K' }], venue: 'ABIII - D102'
+            },
+            {
+                courseType: 'Lab', courseCode: '23CSE315L-S5', courseName: 'Data Structures Lab II',
+                faculty: [{ role: 'Incharge', name: 'Mr. Karthik S' }, { role: 'Assisting', name: 'Dr. Priya Sharma' }],
+                venue: 'ABIII - HW LAB 1'
+            }
+        ]
     };
 
-    const isSlotActive = (timeRange, dayIdx) => {
-        const currentDay = currentTime.getDay();
-        if (currentDay === 0 || currentDay === 6 || currentDay - 1 !== dayIdx) return false;
-        const [start, end] = timeRange.split(' - ');
-        const [startH, startM] = start.split(':').map(Number);
-        const [endH, endM] = end.split(':').map(Number);
-        const nowH = currentTime.getHours();
-        const nowM = currentTime.getMinutes();
-        const currentTotal = nowH * 60 + nowM;
-        const startTotal = startH * 60 + startM;
-        const endTotal = endH * 60 + endM;
-        return currentTotal >= startTotal && currentTotal < endTotal;
+    const getSlotData = (day, slotNumber) => {
+        return timetableData.timetableSlots.find(
+            slot => slot.day === day && slot.slotNumber === slotNumber
+        );
+    };
+
+    const getSlotColor = (slotType) => {
+        const colors = {
+            'Theory': '#e0f7fa',
+            'Lab': '#00bcd4',
+            'Project': '#fff9c4',
+            'CIR': '#ffccbc',
+            'Elective': '#e1bee7',
+            'Occupied': '#f5f5f5',
+            'Discussion': '#c8e6c9'
+        };
+        return colors[slotType] || '#ffffff';
+    };
+
+    const renderSlotContent = (slot) => {
+        if (!slot) return null;
+
+        if (slot.isSpanContinuation) {
+            return (
+                <div style={{ fontSize: '0.7rem', color: '#718096', fontStyle: 'italic', textAlign: 'center' }}>
+                    ↑ Continued
+                </div>
+            );
+        }
+
+        return (
+            <div>
+                <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+                    {slot.courseCode}
+                    {slot.sessionType && slot.sessionType !== 'Theory' && (
+                        <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.25rem', fontSize: '0.75rem' }}>
+                            ({slot.sessionType})
+                        </span>
+                    )}
+                </div>
+                {slot.venue && (
+                    <div style={{ fontSize: '0.7rem', color: '#555' }}>
+                        {slot.venue}
+                    </div>
+                )}
+                {slot.spanSlots > 1 && (
+                    <div style={{ fontSize: '0.65rem', color: '#e53e3e', fontWeight: '600', marginTop: '2px' }}>
+                        {slot.spanSlots} slots
+                    </div>
+                )}
+                {slot.notes && (
+                    <div style={{ fontSize: '0.7rem', color: '#777', fontStyle: 'italic', marginTop: '2px' }}>
+                        {slot.notes}
+                    </div>
+                )}
+            </div>
+        );
     };
 
     return (
-        <div className="dashboard-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="dashboard-fade-in amrita-timetable-container" style={{ width: '100%', paddingBottom: '2rem' }}>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>Class Timetable</h2>
                     <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>View your weekly academic schedule</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <button
-                        onClick={() => setIsCompact(!isCompact)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--surface)', color: 'var(--text-main)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 500, transition: 'var(--transition)' }}
-                    >
-                        {isCompact ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
-                        {isCompact ? 'Expanded View' : 'Compact View'}
-                    </button>
                     <button
                         style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 500, transition: 'var(--transition)', boxShadow: 'var(--shadow-sm)' }}
                     >
@@ -72,77 +149,88 @@ const StudentTimetable = () => {
                 </div>
             </div>
 
-            <div className="timetable-wrapper" style={{ width: '100%', overflow: 'hidden', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', position: 'relative' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            {/* Header */}
+            <div className="timetable-header">
+                <h2>TIME TABLE</h2>
+            </div>
+
+            {/* Configuration */}
+            <div className="timetable-config">
+                <div className="config-row">
+                    <div className="config-item">
+                        <label>Dept-{timetableData.department}</label>
+                        <span>Semester: {timetableData.semester === 'Odd' ? 'VI' : 'V'}</span>
+                    </div>
+                    <div className="config-item">
+                        <label>Class: {timetableData.program} {timetableData.department}</label>
+                        <span>Section: {timetableData.section}</span>
+                    </div>
+                    <div className="config-item">
+                        <label>AB III</label>
+                    </div>
+                </div>
+                {timetableData.classAdvisors && (
+                    <div className="config-row">
+                        <div className="config-item">
+                            <label>Class Advisors:</label>
+                            <span>
+                                {timetableData.classAdvisors.map(a => a.name).join(', ')}
+                            </span>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Timetable Grid */}
+            <div className="timetable-grid-wrapper">
+                <table className="timetable-grid">
                     <thead>
                         <tr>
-                            <th style={{ position: 'sticky', top: 0, left: 0, zIndex: 20, background: '#60a550', padding: isCompact ? '0.5rem' : '0.75rem', borderBottom: '2px solid var(--border)', borderRight: '2px solid var(--border)', width: '70px', color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>
-                                Time / Day
-                            </th>
-                            {timetableStructure.map((item) => {
-                                const isLunch = item.type === 'lunch';
-                                return (
-                                    <th key={item.id} style={{ position: 'sticky', top: 0, zIndex: 10, background: isLunch ? '#19a7b3' : '#60a550', padding: isLunch ? '0.5rem 0.1rem' : (isCompact ? '0.25rem' : '0.5rem'), borderBottom: '2px solid var(--border)', borderRight: '1px solid var(--border)', color: 'white', width: isLunch ? '30px' : 'auto' }}>
-                                        <div style={{ fontWeight: 600, fontSize: isCompact ? '0.75rem' : '0.8rem', color: 'white', ...(isLunch && { writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto' }) }}>{item.label}</div>
-                                        {!isLunch && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.9)', marginTop: '0.2rem', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}><Clock size={10} /> {item.time}</div>}
-                                    </th>
-                                );
-                            })}
+                            <th rowSpan="2">Time/Day</th>
+                            {slots.map(slot => (
+                                <th key={slot.number}>
+                                    Slot {slot.number}
+                                </th>
+                            ))}
+                        </tr>
+                        <tr>
+                            {slots.map(slot => (
+                                <th key={`time-${slot.number}`} className="time-header">
+                                    {slot.start} - {slot.end}
+                                </th>
+                            ))}
                         </tr>
                     </thead>
-
                     <tbody>
-                        {days.map((day, dayIdx) => (
-                            <tr key={day} style={{ transition: 'var(--transition)' }}>
-                                <td style={{ position: 'sticky', left: 0, zIndex: 15, padding: isCompact ? '0.5rem' : '0.75rem', background: '#fee8a4', borderBottom: '1px solid var(--border)', borderRight: '2px solid var(--border)', fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)', textAlign: 'center' }}>
-                                    {day}
-                                </td>
-
-                                {timetableStructure.map((item) => {
-                                    if (item.type === 'lunch') {
-                                        if (dayIdx === 0) {
+                        {days.map(day => (
+                            <tr key={day}>
+                                <td className="day-cell">{day}</td>
+                                {slots.map(slot => {
+                                    if (slot.number === 5) {
+                                        if (day === 'Monday') {
                                             return (
-                                                <td key={item.id} rowSpan={days.length} style={{ background: '#19a7b3', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', textAlign: 'center', color: 'white', fontWeight: 600, padding: 0 }}>
-                                                    <div style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto', letterSpacing: '4px' }}>LUNCH BREAK</div>
-                                                </td>
+                                                <React.Fragment key={`${day}-${slot.number}`}>
+                                                    <td
+                                                        rowSpan={days.length}
+                                                        className="lunch-break-cell"
+                                                    >
+                                                        Lunch Break
+                                                    </td>
+                                                </React.Fragment>
                                             );
                                         }
                                         return null;
                                     }
 
-                                    const classInfo = SCHEDULE_DATA[day]?.[item.id];
-                                    const active = isSlotActive(item.time, dayIdx);
+                                    const slotData = getSlotData(day, slot.number);
 
                                     return (
                                         <td
-                                            key={item.id}
+                                            key={`${day}-${slot.number}`}
                                             className="timetable-cell"
-                                            style={{ position: 'relative', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', padding: isCompact ? '0.35rem' : '0.5rem', height: isCompact ? '70px' : '100px', background: active ? 'rgba(37, 99, 235, 0.1)' : 'transparent', transition: 'var(--transition)' }}
+                                            style={{ backgroundColor: getSlotColor(slotData?.slotType || slotData?.sessionType) }}
                                         >
-                                            {classInfo ? (
-                                                <div className="class-block" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#d1f0fa', borderRadius: 'var(--radius-sm)', padding: '0.15rem', cursor: 'pointer', border: active ? '2px solid var(--primary)' : '1px solid transparent', boxShadow: 'none', position: 'relative' }}>
-                                                    <span style={{ fontWeight: 600, fontSize: isCompact ? '0.75rem' : '0.8rem', color: '#1f2937' }}>{classInfo.code}</span>
-                                                    <span style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '0.1rem', display: 'flex', alignItems: 'center', gap: '0.15rem', whiteSpace: 'nowrap' }}>
-                                                        {classInfo.room}
-                                                    </span>
-                                                    {!isCompact && (
-                                                        <span style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '0.1rem', display: 'flex', alignItems: 'center', gap: '0.15rem', whiteSpace: 'nowrap' }}>
-                                                            {classInfo.faculty || classInfo.type}
-                                                        </span>
-                                                    )}
-
-                                                    <div className="class-popover">
-                                                        <div style={{ fontWeight: 700, color: 'var(--text-main)', borderBottom: '1px solid var(--border)', paddingBottom: '0.25rem' }}>{classInfo.code} - {classInfo.type}</div>
-                                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MapPin size={12} /> {classInfo.room}</div>
-                                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Users size={12} /> {classInfo.faculty}</div>
-                                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Clock size={12} /> {item.time}</div>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <span style={{ color: 'transparent' }}>-</span>
-                                                </div>
-                                            )}
+                                            {renderSlotContent(slotData)}
                                         </td>
                                     );
                                 })}
@@ -151,6 +239,104 @@ const StudentTimetable = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Course Information Tables */}
+            {timetableData.courses && (
+                <div className="course-tables">
+                    {/* Core/Theory Courses */}
+                    <div className="course-table-section">
+                        <h3>Core Courses</h3>
+                        <table className="course-info-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Faculty</th>
+                                    <th>Venue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {timetableData.courses
+                                    .filter(c => c.courseType === 'Core' || c.courseType === 'Theory')
+                                    .map((course, idx) => {
+                                        const theorySlot = timetableData.timetableSlots?.find(
+                                            s => s.courseCode === course.courseCode && (!s.sessionType || s.sessionType === 'Theory')
+                                        );
+                                        const venue = theorySlot?.venue || course.venue || 'TBD';
+
+                                        return (
+                                            <tr key={idx}>
+                                                <td>{course.courseCode}</td>
+                                                <td>
+                                                    {course.courseName}
+                                                    {course.sessionType && course.sessionType !== 'Theory' && (
+                                                        <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.5rem' }}>
+                                                            ({course.sessionType})
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {course.faculty.map(f => f.name || 'TBD').join(', ')}
+                                                </td>
+                                                <td>{venue}</td>
+                                            </tr>
+                                        );
+                                    })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Component Labs */}
+                    {timetableData.courses.some(c => c.courseType === 'Lab') && (
+                        <div className="course-table-section">
+                            <h3>Component Lab</h3>
+                            <table className="course-info-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Incharge Lab</th>
+                                        <th>Assisting Faculty</th>
+                                        <th>Venue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {timetableData.courses
+                                        .filter(c => c.courseType === 'Lab')
+                                        .map((course, idx) => {
+                                            const incharge = course.faculty.find(f => f.role === 'Incharge') || course.faculty[0];
+                                            const assisting = course.faculty.filter(f => f.role === 'Assisting');
+
+                                            const labSlot = timetableData.timetableSlots?.find(
+                                                s => s.courseCode === course.courseCode && s.sessionType === 'Lab'
+                                            );
+                                            const venue = labSlot?.venue || course.venue || 'TBD';
+
+                                            return (
+                                                <tr key={idx}>
+                                                    <td>{course.courseCode}</td>
+                                                    <td>
+                                                        {course.courseName}
+                                                        {course.sessionType && course.sessionType !== 'Lab' && (
+                                                            <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.5rem' }}>
+                                                                ({course.sessionType})
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td>{incharge?.name || 'TBD'}</td>
+                                                    <td>
+                                                        {assisting.length > 0 ? assisting.map(f => f.name || 'TBD').join(', ') : 'N/A'}
+                                                    </td>
+                                                    <td>{venue}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

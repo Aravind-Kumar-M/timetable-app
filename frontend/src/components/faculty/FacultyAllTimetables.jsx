@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../admin/AmritaTimetable.css';
 
 const FacultyAllTimetables = () => {
     const [selectedDepartment, setSelectedDepartment] = useState('CSE');
@@ -13,21 +14,32 @@ const FacultyAllTimetables = () => {
     const sections = ['A', 'B', 'C'];
     const academicYears = ['2024-2025', '2023-2024'];
 
-    const timetableStructure = [
-        { type: 'slot', id: 1, label: 'Slot 1', time: '08:00 - 08:50' },
-        { type: 'slot', id: 2, label: 'Slot 2', time: '08:50 - 09:40' },
-        { type: 'slot', id: 3, label: 'Slot 3', time: '09:40 - 10:30' },
-        { type: 'slot', id: 4, label: 'Slot 4', time: '10:45 - 11:35' },
-        { type: 'slot', id: 5, label: 'Slot 5', time: '11:35 - 12:25' },
-        { type: 'slot', id: 6, label: 'Slot 6', time: '12:25 - 13:15' },
-        { type: 'lunch', id: 'lb', label: 'Lunch Break', time: '13:15 - 14:05' },
-        { type: 'slot', id: 7, label: 'Slot 7', time: '14:05 - 14:55' },
-        { type: 'slot', id: 8, label: 'Slot 8', time: '14:55 - 15:45' },
-        { type: 'slot', id: 9, label: 'Slot 9', time: '15:45 - 16:35' },
-        { type: 'slot', id: 10, label: 'Slot 10', time: '16:35 - 17:25' }
+    const slots = [
+        { number: 1, start: '08:00', end: '09:00' },
+        { number: 2, start: '09:00', end: '10:00' },
+        { number: 3, start: '10:00', end: '11:00' },
+        { number: 4, start: '11:00', end: '12:00' },
+        { number: 5, start: '12:00', end: '13:00' }, // Lunch
+        { number: 6, start: '13:00', end: '14:00' },
+        { number: 7, start: '14:00', end: '15:00' },
+        { number: 8, start: '15:00', end: '16:00' },
+        { number: 9, start: '16:00', end: '17:00' }
     ];
 
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+    const getSlotColor = (slotType) => {
+        const colors = {
+            'Theory': '#e0f7fa',
+            'Lab': '#00bcd4',
+            'Project': '#fff9c4',
+            'CIR': '#ffccbc',
+            'Elective': '#e1bee7',
+            'Occupied': '#f5f5f5',
+            'Discussion': '#c8e6c9'
+        };
+        return colors[slotType] || '#ffffff';
+    };
 
     const generateRandomTimetable = (department) => {
         const deptSubjects = {
@@ -39,26 +51,48 @@ const FacultyAllTimetables = () => {
         };
 
         const subjects = deptSubjects[department] || deptSubjects['CSE'];
-        const rooms = ['101', '102', '103', '104', '105', '201', '202', '203'];
-        const slots = [];
+        const rooms = ['101', '102', '103', '104', '105', '201', '202'];
+        const generatedSlots = [];
+        const coursesMap = {};
 
         days.forEach(day => {
-            timetableStructure.forEach(item => {
-                if (item.type === 'slot') {
-                    // 70% chance of having a class
+            slots.forEach(item => {
+                if (item.number !== 5) {
                     if (Math.random() > 0.3) {
-                        slots.push({
+                        const baseCode = subjects[Math.floor(Math.random() * subjects.length)];
+                        const room = `Room ${rooms[Math.floor(Math.random() * rooms.length)]}`;
+                        const isLab = Math.random() > 0.8;
+                        const type = isLab ? 'Lab' : 'Theory';
+                        const actualCode = isLab ? `${baseCode}L` : baseCode;
+
+                        generatedSlots.push({
                             day: day,
-                            slotNumber: item.id,
-                            courseCode: subjects[Math.floor(Math.random() * subjects.length)],
-                            roomNumber: `Room ${rooms[Math.floor(Math.random() * rooms.length)]}`,
-                            faculty: 'Staff Name'
+                            slotNumber: item.number,
+                            courseCode: actualCode,
+                            sessionType: type,
+                            venue: room,
+                            facultyName: 'Staff Name'
                         });
+
+                        coursesMap[actualCode] = {
+                            courseCode: actualCode,
+                            courseName: `${baseCode} ${isLab ? 'Lab' : 'Course'}`,
+                            courseType: type,
+                            faculty: [{ name: 'Staff Name', role: isLab ? 'Incharge' : undefined }],
+                            venue: room
+                        };
                     }
                 }
             });
         });
-        return { timetableSlots: slots };
+        return {
+            timetableSlots: generatedSlots,
+            courses: Object.values(coursesMap),
+            department: selectedDepartment,
+            semester: selectedSemester,
+            section: selectedSection,
+            academicYear: selectedAcademicYear
+        };
     };
 
     useEffect(() => {
@@ -77,32 +111,31 @@ const FacultyAllTimetables = () => {
                 if (response.data && response.data.timetableSlots && response.data.timetableSlots.length > 0) {
                     setTimetableData(response.data);
                 } else {
-                    // Generate random data if response is empty
                     setTimetableData(generateRandomTimetable(selectedDepartment));
                 }
             } catch (error) {
                 console.error("Error fetching timetable", error);
-                // Generate random data on error
                 setTimetableData(generateRandomTimetable(selectedDepartment));
             }
         };
         fetchTimetable();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDepartment, selectedSemester, selectedSection, selectedAcademicYear]);
 
     const getSlotContent = (day, slotId) => {
         if (!timetableData || !timetableData.timetableSlots) return null;
-        return timetableData.timetableSlots.find(slot => slot.day === day && slot.slotNumber === slotId);
+        return timetableData.timetableSlots.find(slot => slot.day === day && slot.slotNumber === slotId && !slot.isSpanContinuation);
     };
 
     return (
-        <div className="dashboard-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+        <div className="dashboard-fade-in amrita-timetable-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>All Class Timetables</h2>
                     <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>View and filter all department schedules</p>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--surface)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <label htmlFor="academicYearSelect" style={{ fontWeight: '600' }}>Year:</label>
                         <select
@@ -161,50 +194,83 @@ const FacultyAllTimetables = () => {
                 </div>
             </div>
 
-            <div className="timetable-wrapper" style={{ width: '100%', overflow: 'hidden', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)', position: 'relative' }}>
-                <h3 style={{ margin: '1rem', color: 'var(--text-main)' }}>Timetable for {selectedDepartment} - Sem {selectedSemester} - Section {selectedSection} ({selectedAcademicYear})</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            <div className="timetable-header">
+                <h2>TIME TABLE</h2>
+            </div>
+
+            <div className="timetable-config">
+                <div className="config-row">
+                    <div className="config-item">
+                        <label>Dept-{selectedDepartment}</label>
+                        <span>Semester: {selectedSemester % 2 !== 0 ? 'Odd' : 'Even'} ({selectedSemester})</span>
+                    </div>
+                    <div className="config-item">
+                        <label>Class: B.Tech {selectedDepartment}</label>
+                        <span>Section: {selectedSection}</span>
+                    </div>
+                    <div className="config-item">
+                        <label>AY: {selectedAcademicYear}</label>
+                    </div>
+                </div>
+            </div>
+
+            <div className="timetable-grid-wrapper" style={{ width: '100%', position: 'relative' }}>
+                <table className="timetable-grid">
                     <thead>
                         <tr>
-                            <th style={{ position: 'sticky', top: 0, left: 0, zIndex: 20, background: '#60a550', padding: '0.75rem', borderBottom: '2px solid var(--border)', borderRight: '2px solid var(--border)', width: '70px', color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>
+                            <th rowSpan="2">
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                                     Time/Day
                                 </div>
                             </th>
-                            {timetableStructure.map((item) => {
-                                const isLunch = item.type === 'lunch';
-                                return (
-                                    <th key={item.id} style={{ position: 'sticky', top: 0, zIndex: 10, background: isLunch ? '#19a7b3' : '#60a550', padding: isLunch ? '0.5rem 0.1rem' : '0.5rem', borderBottom: '2px solid var(--border)', borderRight: '1px solid var(--border)', color: 'white', width: isLunch ? '30px' : 'auto' }}>
-                                        <div style={{ fontWeight: 600, fontSize: '0.8rem', color: 'white', ...(isLunch && { writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto' }) }}>{item.label}</div>
-                                        {!isLunch && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.9)', marginTop: '0.2rem', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>{item.time}</div>}
-                                    </th>
-                                );
-                            })}
+                            {slots.map((item) => (
+                                <th key={item.number}>Slot {item.number}</th>
+                            ))}
+                        </tr>
+                        <tr>
+                            {slots.map(slot => (
+                                <th key={`time-${slot.number}`} className="time-header">
+                                    {slot.start} - {slot.end}
+                                </th>
+                            ))}
                         </tr>
                     </thead>
 
                     <tbody>
                         {days.map((day, dayIdx) => (
-                            <tr key={day} style={{ transition: 'var(--transition)' }}>
-                                <td style={{ position: 'sticky', left: 0, zIndex: 15, padding: '0.75rem', background: '#fee8a4', borderBottom: '1px solid var(--border)', borderRight: '2px solid var(--border)', fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)', textAlign: 'center' }}>
-                                    {day}
-                                </td>
+                            <tr key={day}>
+                                <td className="day-cell">{day}</td>
 
-                                {timetableStructure.map((item) => {
-                                    if (item.type === 'lunch') {
-                                        if (dayIdx === 0) return <td key={item.id} rowSpan={days.length} style={{ background: '#19a7b3', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', textAlign: 'center', color: 'white', fontWeight: 600, padding: 0 }}><div style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)', margin: 'auto', letterSpacing: '4px' }}>LUNCH BREAK</div></td>;
+                                {slots.map((item) => {
+                                    if (item.number === 5) {
+                                        if (dayIdx === 0) return <td key={item.number} rowSpan={days.length} className="lunch-break-cell">Lunch Break</td>;
                                         return null;
                                     }
 
-                                    const slotData = getSlotContent(day, item.id);
+                                    const slotData = getSlotContent(day, item.number);
 
                                     return (
-                                        <td key={item.id} className="timetable-cell" style={{ position: 'relative', borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)', padding: '0.35rem', height: '80px', background: 'transparent', transition: 'var(--transition)' }}>
+                                        <td key={item.number} className="timetable-cell" style={{ backgroundColor: getSlotColor(slotData?.sessionType || slotData?.slotType), padding: '0.5rem' }}>
                                             {slotData ? (
-                                                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#d1f0fa', borderRadius: 'var(--radius-sm)', padding: '0.25rem', border: '1px solid transparent', transition: 'var(--transition)' }}>
-                                                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#1f2937' }}>{slotData.courseCode || slotData.subject || 'N/A'}</span>
-                                                    <span style={{ fontSize: '0.7rem', color: '#4b5563', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>{slotData.venue || slotData.room || slotData.roomNumber || 'Room N/A'}</span>
-                                                    {slotData.facultyName && <span style={{ fontSize: '0.65rem', background: 'rgba(0,0,0,0.05)', color: '#4b5563', padding: '2px 6px', borderRadius: '10px', marginTop: '0.25rem', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{slotData.facultyName.split(' ')[0]}</span>}
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+                                                        {slotData.courseCode || slotData.subject || 'N/A'}
+                                                        {slotData.sessionType && slotData.sessionType !== 'Theory' && (
+                                                            <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.25rem', fontSize: '0.75rem' }}>
+                                                                ({slotData.sessionType})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {slotData.venue && (
+                                                        <div style={{ fontSize: '0.7rem', color: '#555' }}>
+                                                            {slotData.venue || slotData.roomNumber}
+                                                        </div>
+                                                    )}
+                                                    {slotData.facultyName && (
+                                                        <div style={{ fontSize: '0.65rem', color: '#4b5563', marginTop: '0.15rem' }}>
+                                                            {slotData.facultyName.split(' ')[0]}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: 'transparent' }}>-</span></div>
@@ -217,7 +283,105 @@ const FacultyAllTimetables = () => {
                     </tbody>
                 </table>
             </div>
-        </div >
+
+            {/* Course Information Tables */}
+            {timetableData?.courses && (
+                <div className="course-tables">
+                    {/* Core/Theory Courses */}
+                    <div className="course-table-section">
+                        <h3>Core Courses</h3>
+                        <table className="course-info-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Faculty</th>
+                                    <th>Venue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {timetableData.courses
+                                    .filter(c => c.courseType === 'Core' || c.courseType === 'Theory')
+                                    .map((course, idx) => {
+                                        const theorySlot = timetableData.timetableSlots?.find(
+                                            s => s.courseCode === course.courseCode && (!s.sessionType || s.sessionType === 'Theory')
+                                        );
+                                        const venue = theorySlot?.venue || course.venue || 'TBD';
+
+                                        return (
+                                            <tr key={idx}>
+                                                <td>{course.courseCode}</td>
+                                                <td>
+                                                    {course.courseName}
+                                                    {course.sessionType && course.sessionType !== 'Theory' && (
+                                                        <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.5rem' }}>
+                                                            ({course.sessionType})
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {course.faculty?.map(f => f.name || 'TBD').join(', ') || 'N/A'}
+                                                </td>
+                                                <td>{venue}</td>
+                                            </tr>
+                                        );
+                                    })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Component Labs */}
+                    {timetableData.courses.some(c => c.courseType === 'Lab') && (
+                        <div className="course-table-section">
+                            <h3>Component Lab</h3>
+                            <table className="course-info-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Incharge Lab</th>
+                                        <th>Assisting Faculty</th>
+                                        <th>Venue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {timetableData.courses
+                                        .filter(c => c.courseType === 'Lab')
+                                        .map((course, idx) => {
+                                            const incharge = course.faculty?.find(f => f.role === 'Incharge') || course.faculty?.[0];
+                                            const assisting = course.faculty?.filter(f => f.role === 'Assisting') || [];
+
+                                            const labSlot = timetableData.timetableSlots?.find(
+                                                s => s.courseCode === course.courseCode && s.sessionType === 'Lab'
+                                            );
+                                            const venue = labSlot?.venue || course.venue || 'TBD';
+
+                                            return (
+                                                <tr key={idx}>
+                                                    <td>{course.courseCode}</td>
+                                                    <td>
+                                                        {course.courseName}
+                                                        {course.sessionType && course.sessionType !== 'Lab' && (
+                                                            <span style={{ color: '#805ad5', fontWeight: '600', marginLeft: '0.5rem' }}>
+                                                                ({course.sessionType})
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td>{incharge?.name || 'TBD'}</td>
+                                                    <td>
+                                                        {assisting.length > 0 ? assisting.map(f => f.name || 'TBD').join(', ') : 'N/A'}
+                                                    </td>
+                                                    <td>{venue}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
     );
 };
 
