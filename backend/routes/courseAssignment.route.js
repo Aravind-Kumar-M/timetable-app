@@ -9,7 +9,9 @@ import {
     deleteCourseAssignment,
     getFacultyTimetable
 } from '../controllers/courseAssignment.controller.js';
-import { verifyAdmin } from '../utils/verifyUser.js';
+
+import { generateSampleTimetable } from '../controllers/sampleData.controller.js';
+import { verifyAdmin, verifyUser } from '../utils/verifyUser.js';
 
 const router = express.Router();
 
@@ -26,13 +28,8 @@ const router = express.Router();
  *   get:
  *     summary: Get all course assignments
  *     tags: [Course Assignments]
- *     responses:
- *       200:
- *         description: List of all course assignments
- *       500:
- *         description: Server error
  */
-router.get('/', verifyAdmin, getAllCourseAssignments);
+router.get('/', verifyUser, getAllCourseAssignments);
 
 /**
  * @swagger
@@ -40,27 +37,17 @@ router.get('/', verifyAdmin, getAllCourseAssignments);
  *   get:
  *     summary: Get course assignment by parameters
  *     tags: [Course Assignments]
- *     parameters:
- *       - in: query
- *         name: academicYear
- *         required: true
- *       - in: query
- *         name: semester
- *         required: true
- *       - in: query
- *         name: department
- *         required: true
- *       - in: query
- *         name: section
- *         required: true
- *     responses:
- *       200:
- *         description: Course assignment found
- *       404:
- *         description: Not found
  */
-router.get('/find', verifyAdmin, getCourseAssignment);
-router.get('/faculty-timetable', verifyAdmin, getFacultyTimetable);
+router.get('/find', verifyUser, getCourseAssignment);
+
+/**
+ * @swagger
+ * /api/timetable/faculty-timetable:
+ *   get:
+ *     summary: Get faculty timetable
+ *     tags: [Course Assignments]
+ */
+router.get('/faculty-timetable', verifyUser, getFacultyTimetable);
 
 /**
  * @swagger
@@ -68,9 +55,6 @@ router.get('/faculty-timetable', verifyAdmin, getFacultyTimetable);
  *   post:
  *     summary: Create new course assignment
  *     tags: [Course Assignments]
- *     responses:
- *       201:
- *         description: Created successfully
  */
 router.post('/', verifyAdmin, createCourseAssignment);
 
@@ -80,13 +64,6 @@ router.post('/', verifyAdmin, createCourseAssignment);
  *   put:
  *     summary: Update course assignment
  *     tags: [Course Assignments]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *     responses:
- *       200:
- *         description: Updated successfully
  */
 router.put('/:id', verifyAdmin, updateCourseAssignment);
 
@@ -94,15 +71,8 @@ router.put('/:id', verifyAdmin, updateCourseAssignment);
  * @swagger
  * /api/timetable/{id}/slots:
  *   put:
- *     summary: Update a specific timetable slot
+ *     summary: Update timetable slots
  *     tags: [Course Assignments]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *     responses:
- *       200:
- *         description: Slot updated successfully
  */
 router.put('/:id/slots', verifyAdmin, updateTimetableSlot);
 
@@ -110,15 +80,8 @@ router.put('/:id/slots', verifyAdmin, updateTimetableSlot);
  * @swagger
  * /api/timetable/{id}/slot:
  *   put:
- *     summary: Update specific slot in timetable
+ *     summary: Update specific slot
  *     tags: [Course Assignments]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *     responses:
- *       200:
- *         description: Slot updated successfully
  */
 router.put('/:id/slot', verifyAdmin, updateSlot);
 
@@ -128,13 +91,6 @@ router.put('/:id/slot', verifyAdmin, updateSlot);
  *   delete:
  *     summary: Delete course assignment
  *     tags: [Course Assignments]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *     responses:
- *       200:
- *         description: Deleted successfully
  */
 router.delete('/:id', verifyAdmin, deleteCourseAssignment);
 
@@ -142,13 +98,9 @@ router.delete('/:id', verifyAdmin, deleteCourseAssignment);
  * @swagger
  * /api/timetable/sample/generate:
  *   post:
- *     summary: Generate sample timetable data for testing
+ *     summary: Generate sample timetable data
  *     tags: [Course Assignments]
- *     responses:
- *       201:
- *         description: Sample data created
  */
-import { generateSampleTimetable } from '../controllers/sampleData.controller.js';
 router.post('/sample/generate', verifyAdmin, generateSampleTimetable);
 
 export default router;

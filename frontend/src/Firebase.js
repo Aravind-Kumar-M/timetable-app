@@ -16,3 +16,6 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const provider = new OAuthProvider('microsoft.com');
+provider.setCustomParameters({
+  prompt: 'select_account',
+});
