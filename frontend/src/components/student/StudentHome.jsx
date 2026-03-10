@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { Bell, BookOpen, Clock, CalendarDays, Loader2 } from 'lucide-react';
+import { Bell, BookOpen, Clock, CalendarDays, Loader2, RefreshCw } from 'lucide-react';
 import { timetableService } from '../../services/timetableService';
 
 const CircularProgress = ({ percentage, color }) => {
@@ -197,7 +197,28 @@ const StudentHome = () => {
                         <h3 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Clock size={20} color="var(--student-theme)" /> Today's Classes
                         </h3>
-                        <button onClick={() => navigate('/student/timetable')} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 500 }}>View Timetable</button>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); fetchTodayClasses(); }} 
+                                disabled={loading}
+                                style={{ 
+                                    background: 'var(--student-theme-light)', 
+                                    color: 'var(--student-theme)', 
+                                    border: 'none', 
+                                    padding: '0.4rem', 
+                                    borderRadius: 'var(--radius-md)', 
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    opacity: loading ? 0.6 : 1,
+                                    transition: 'var(--transition)'
+                                }}
+                                title="Refresh today's classes"
+                            >
+                                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                            </button>
+                            <button onClick={() => navigate('/student/timetable')} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}>View Timetable</button>
+                        </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {loading ? (
@@ -227,16 +248,14 @@ const StudentHome = () => {
                     </div>
                 </div>
 
-                {isCR && (
-                    <div className="modern-card" onClick={() => navigate('/student/reschedule')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--warning)', cursor: 'pointer', transition: 'var(--transition)' }}>
-                        <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Request Stats</h3>
-                        <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--warning)', marginBottom: '0.5rem' }}>3 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Requests</span></div>
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <div style={{ padding: '0.5rem 1rem', background: 'var(--warning-light)', color: 'var(--warning)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>2 Pending</div>
-                            <div style={{ padding: '0.5rem 1rem', background: 'var(--student-theme-light)', color: 'var(--student-theme)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>1 Approved</div>
-                        </div>
+                <div className="modern-card" onClick={() => navigate('/student/reschedule')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--warning)', cursor: 'pointer', transition: 'var(--transition)' }}>
+                    <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Request Stats</h3>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--warning)', marginBottom: '0.5rem' }}>3 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Requests</span></div>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <div style={{ padding: '0.5rem 1rem', background: 'var(--warning-light)', color: 'var(--warning)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>2 Pending</div>
+                        <div style={{ padding: '0.5rem 1rem', background: 'var(--student-theme-light)', color: 'var(--student-theme)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>1 Approved</div>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
