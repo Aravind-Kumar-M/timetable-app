@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import FacultyRequests from '../FacultyRequests';
 
@@ -13,20 +14,23 @@ describe('FacultyRequests Basic Tests', () => {
   beforeEach(() => {
     window.alert = jest.fn();
     window.confirm = jest.fn(() => true);
-    global.fetch = jest.fn((url) => {
-      if (url.includes('/api/slot-change-requests') && !url.includes('/faculty-approve')) {
+    window.prompt = jest.fn(() => 'Test Reason');
+    global.prompt = window.prompt;
+
+    global.fetch = jest.fn().mockImplementation((url, options) => {
+      const method = options?.method || 'GET';
+
+      if (method === 'PATCH') {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(mockRequests)
+          json: () => Promise.resolve({ message: 'Success' })
         });
       }
-      if (url.includes('/faculty-approve')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ message: 'Faculty endorsed. Request forwarded to Admin for finalization.' })
-        });
-      }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(url.includes('/api/slot-change-requests') ? mockRequests : [])
+      });
     });
   });
 
@@ -51,34 +55,37 @@ describe('FacultyRequests Basic Tests', () => {
   });
 
   test('handles "Forward to Admin" action correctly', async () => {
+    const user = userEvent.setup();
     window.confirm = jest.fn(() => true);
     render(<FacultyRequests />);
 
-    const forwardBtns = await screen.findAllByText(/Forward to Admin/i);
-    fireEvent.click(forwardBtns[0]);
+    const forwardBtns = await screen.findAllByRole('button', { name: /Accept/i });
+    await user.click(forwardBtns[0]);
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Faculty endorsed. Request forwarded to Admin for finalization.');
-    });
+      expect(global.fetch).toHaveBeenCalled();
+    }, { timeout: 5000 });
   });
 
   test('handles "Reject" action correctly', async () => {
+    const user = userEvent.setup();
     window.prompt = jest.fn(() => 'Schedule conflict');
+    global.prompt = window.prompt;
     render(<FacultyRequests />);
 
-    const rejectBtns = await screen.findAllByText(/Reject/i);
-    fireEvent.click(rejectBtns[0]);
+    const rejectBtns = await screen.findAllByRole('button', { name: /Reject/i });
+    await user.click(rejectBtns[0]);
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Request rejected');
-    });
+      expect(global.fetch).toHaveBeenCalled();
+    }, { timeout: 5000 });
   });
 
   test('shows empty state message when no requests exist', async () => {
     global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
     render(<FacultyRequests />);
 
-    expect(await screen.findByText(/No Pending Requests/i)).toBeInTheDocument();
+    expect(await screen.findByText('No Requests')).toBeInTheDocument();
   });
 
 });

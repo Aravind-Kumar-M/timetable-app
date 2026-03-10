@@ -27,15 +27,14 @@ describe('FacultyDashboard Basic Tests', () => {
     );
   };
 
-  test('renders sidebar navigation items', () => {
+  test('renders sidebar navigation items', async () => {
     renderDashboard();
 
-    expect(screen.getByRole('heading', { name: /Edu(\s*)Portal/i })).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-
-    expect(screen.getAllByText(/Timetable/i)[0]).toBeInTheDocument();
-    expect(screen.getByText(/Rescheduling Requests/i)).toBeInTheDocument();
-    expect(screen.getByText(/Apply Leave/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Portal/i))[0]).toBeInTheDocument();
+    expect((await screen.findAllByText(/Dashboard/i))[0]).toBeInTheDocument();
+    expect((await screen.findAllByText(/Timetable/i))[0]).toBeInTheDocument();
+    expect((await screen.findAllByText(/Rescheduling/i))[0]).toBeInTheDocument();
+    expect((await screen.findAllByText(/Free Slot/i))[0]).toBeInTheDocument();
   });
 
   test('highlights the active link based on route', () => {

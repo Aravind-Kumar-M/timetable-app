@@ -26,7 +26,6 @@ import StudentHome from './components/student/StudentHome'
 import StudentTimetable from './components/student/StudentTimetable'
 import StudentAllTimetables from './components/student/StudentAllTimetables'
 import CRReschedule from './components/student/CRReschedule'
-import RequestHistory from './components/student/RequestHistory'
 import './App.css'
 
 function App() {
@@ -66,7 +65,6 @@ function App() {
           <Route path="timetable" element={<StudentTimetable />} />
           <Route path="all-timetables" element={<StudentAllTimetables />} />
           <Route path="reschedule" element={<CRReschedule />} />
-          <Route path="request-history" element={<RequestHistory />} />
         </Route>
       </Routes>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 
@@ -6,19 +6,47 @@ const FacultyHome = () => {
   const navigate = useNavigate();
   const { userName } = useOutletContext();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "Leave request approved by HOD", time: "1 hr ago" },
-    { id: 2, text: "New timetable schedule available", time: "3 hrs ago" },
-    { id: 3, text: "Dept meeting at 2:00 PM tomorrow", time: "1 day ago" }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications/all', { credentials: 'include' });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
   };
 
-  const clearNotifications = () => {
+  const clearNotifications = async () => {
+    // Ideally we mark all as read on backend
+    // For now, just clear local state to hide them
     setNotifications([]);
     setShowNotifications(false);
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -50,9 +78,9 @@ const FacultyHome = () => {
               <div className="notification-list">
                 {notifications.length > 0 ? (
                   notifications.map(note => (
-                    <div key={note.id} className="notification-item">
-                      <div className="note-text">{note.text}</div>
-                      <div className="note-time">{note.time}</div>
+                    <div key={note._id} className="notification-item">
+                      <div className="note-text">{note.message}</div>
+                      <div className="note-time">{formatTime(note.createdAt)}</div>
                     </div>
                   ))
                 ) : (
@@ -70,14 +98,6 @@ const FacultyHome = () => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-        <div className="modern-card" onClick={() => navigate('/faculty/requests')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--warning)', cursor: 'pointer', transition: 'var(--transition)' }}>
-          <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Pending Requests</h3>
-          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--warning)', marginBottom: '0.5rem' }}>3 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Total Needed</span></div>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            <div style={{ padding: '0.5rem 1rem', background: 'var(--warning-light)', color: 'var(--warning)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>Rescheduling Approvals</div>
-          </div>
-        </div>
-
         <div className="modern-card" onClick={() => navigate('/faculty/timetable')} style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--success)', cursor: 'pointer', transition: 'var(--transition)' }}>
           <h3 style={{ margin: '0 0 1.5rem 0', color: 'var(--text-main)' }}>Weekly Workload</h3>
           <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.5rem' }}>16 <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Hours</span></div>

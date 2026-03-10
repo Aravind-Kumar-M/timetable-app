@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { timetableService } from '../../services/timetableService';
 
 const CRReschedule = () => {
@@ -16,6 +16,7 @@ const CRReschedule = () => {
         requestedSlotNumber: '',
         reason: ''
     });
+    const [requests, setRequests] = useState([]);
 
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const slots = [
@@ -32,7 +33,20 @@ const CRReschedule = () => {
 
     useEffect(() => {
         fetchTimetable();
+        fetchRequests();
     }, []);
+
+    const fetchRequests = async () => {
+        try {
+            const requestsRes = await fetch('/api/slot-change-requests', {
+                credentials: 'include'
+            });
+            const requestsData = await requestsRes.json();
+            setRequests(Array.isArray(requestsData) ? requestsData : []);
+        } catch (error) {
+            console.error("Error fetching requests:", error);
+        }
+    };
 
     const fetchTimetable = async () => {
         try {
@@ -73,13 +87,31 @@ const CRReschedule = () => {
             return;
         }
 
-        const facultyMember = course.faculty.find(f => f.role === 'Incharge') || course.faculty[0];
+        // Identify the faculty responsible for this slot
+        // 1. Try to get it from the actual slot first
+        let facultyId = null;
+        let facultyName = 'TBD';
+
+        if (currentSlot.faculty && currentSlot.faculty.length > 0) {
+            facultyId = currentSlot.faculty[0]._id || currentSlot.faculty[0];
+            facultyName = currentSlot.faculty[0].name || currentSlot.facultyName || 'TBD';
+        }
+
+        // 2. Fallback to course incharge if slot doesn't have it
+        if (!facultyId || facultyName === 'TBD') {
+            const facultyMember = course.faculty.find(f => f.role === 'Incharge') || course.faculty[0];
+            if (facultyMember) {
+                facultyId = facultyMember.facultyId?._id || facultyMember.facultyId;
+                facultyName = facultyMember.facultyId?.name || 'TBD';
+            }
+        }
 
         const requestBody = {
             courseAssignmentId: timetableData._id,
             courseCode: request.courseCode,
             courseName: course.courseName,
-            facultyName: facultyMember?.name || 'TBD',
+            facultyId: facultyId,
+            facultyName: facultyName,
             venue: currentSlot.venue,
             currentDay: request.currentDay,
             currentSlotNumber: parseInt(request.currentSlotNumber),
@@ -109,6 +141,7 @@ const CRReschedule = () => {
                     requestedSlotNumber: '',
                     reason: ''
                 });
+                fetchRequests(); // Refresh history
             } else {
                 alert(`Error: ${data.message || 'Failed to submit request'}`);
             }
@@ -118,6 +151,34 @@ const CRReschedule = () => {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const getStatusBadge = (status) => {
+        const styles = {
+            Pending_Faculty: { bg: '#fef3c7', color: '#92400e', label: 'Pending Faculty' },
+            Pending_Admin: { bg: '#dbeafe', color: '#1e40af', label: 'Pending Admin' },
+            Approved: { bg: '#DCFCE7', color: '#15803D', label: 'Approved' },
+            Rejected: { bg: '#fee2e2', color: '#991b1b', label: 'Rejected' }
+        };
+        const style = styles[status] || styles.Pending_Faculty;
+        return (
+            <span style={{
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                padding: '0.35rem 0.85rem',
+                borderRadius: '999px',
+                backgroundColor: style.bg,
+                color: style.color,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+            }}>
+                {status === 'Approved' && <CheckCircle size={14} />}
+                {status === 'Rejected' && <XCircle size={14} />}
+                {(status === 'Pending_Faculty' || status === 'Pending_Admin') && <Clock size={14} />}
+                {style.label}
+            </span>
+        );
     };
 
     if (loading) {
@@ -154,8 +215,8 @@ const CRReschedule = () => {
             </div>
 
             {/* Submit Request Form */}
-                <div className="modern-card" style={{ maxWidth: '700px', margin: '0 auto 2rem', padding: '2rem', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
-                    <form onSubmit={handleSubmit}>
+            <div className="modern-card" style={{ maxWidth: '700px', margin: '0 auto 2rem', padding: '2rem', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+                <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label style={{ fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Select Course</label>
                         <select
@@ -174,7 +235,7 @@ const CRReschedule = () => {
                     </div>
 
                     <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: 'var(--text-main)' }}>Current Slot</h4>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div className="form-group">
                             <label style={{ fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Day</label>
@@ -251,18 +312,18 @@ const CRReschedule = () => {
                     </div>
 
                     <div className="form-actions" style={{ marginTop: '1.5rem' }}>
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={submitting}
-                            style={{ 
-                                width: '100%', 
-                                padding: '0.75rem', 
-                                backgroundColor: submitting ? '#9ca3af' : '#2563EB', 
-                                color: '#FFFFFF', 
-                                border: 'none', 
-                                borderRadius: 'var(--radius-md)', 
-                                fontSize: '1rem', 
-                                fontWeight: 600, 
+                            style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                backgroundColor: submitting ? '#9ca3af' : '#2563EB',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                borderRadius: 'var(--radius-md)',
+                                fontSize: '1rem',
+                                fontWeight: 600,
                                 cursor: submitting ? 'not-allowed' : 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -278,6 +339,86 @@ const CRReschedule = () => {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {/* History Section */}
+            <div style={{ maxWidth: '900px', margin: '2rem auto' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '1.5rem', textAlign: 'center' }}>
+                    Your Recent Requests
+                </h3>
+
+                {requests.length === 0 ? (
+                    <div className="modern-card" style={{ padding: '2rem', textAlign: 'center', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+                        <p style={{ color: 'var(--text-muted)', margin: 0 }}>No requests submitted yet.</p>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {requests.map(req => (
+                            <div key={req._id} className="modern-card" style={{
+                                backgroundColor: 'var(--surface)',
+                                padding: '1.5rem',
+                                borderRadius: 'var(--radius-lg)',
+                                boxShadow: 'var(--shadow-sm)',
+                                border: '1px solid var(--border)',
+                                borderLeft: `4px solid ${req.status === 'Pending_Faculty' ? '#fbbf24' :
+                                    req.status === 'Pending_Admin' ? '#3b82f6' :
+                                        req.status === 'Approved' ? '#22C55E' : '#ef4444'
+                                    }`
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                    <div>
+                                        <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-main)', fontSize: '1.1rem' }}>
+                                            {req.courseCode} - {req.courseName}
+                                        </h4>
+                                        <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                            Faculty: {req.facultyName}
+                                        </p>
+                                    </div>
+                                    {getStatusBadge(req.status)}
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '1rem', alignItems: 'center', marginTop: '1rem', padding: '1rem', background: 'var(--bg)', borderRadius: 'var(--radius-md)' }}>
+                                    <div>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Current</div>
+                                        <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{req.currentDay}</div>
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Slot {req.currentSlotNumber}</div>
+                                    </div>
+                                    <div style={{ fontSize: '1.5rem', color: 'var(--text-muted)' }}>→</div>
+                                    <div>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Requested</div>
+                                        <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{req.requestedDay}</div>
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Slot {req.requestedSlotNumber}</div>
+                                    </div>
+                                </div>
+                                {req.status === 'Approved' && req.assignedVenue && (
+                                    <div style={{ marginTop: '1rem', padding: '1rem', background: '#DCFCE7', border: '2px solid #22C55E', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <CheckCircle size={20} color="#15803D" />
+                                        <div>
+                                            <div style={{ fontSize: '0.85rem', color: '#15803D', fontWeight: 600, marginBottom: '0.25rem' }}>
+                                                Approved - Classroom Assigned
+                                            </div>
+                                            <div style={{ fontSize: '1rem', color: '#15803D', fontWeight: 700 }}>
+                                                Room: {req.assignedVenue}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                {req.reason && (
+                                    <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--bg)', borderRadius: 'var(--radius-md)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                        <strong style={{ color: 'var(--text-main)' }}>Reason:</strong> {req.reason}
+                                    </div>
+                                )}
+                                {req.adminNote && (
+                                    <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: 'var(--radius-md)', fontSize: '0.9rem', color: '#92400e' }}>
+                                        <strong>Admin Note:</strong> {req.adminNote}
+                                    </div>
+                                )}
+                                <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                    Submitted: {new Date(req.createdAt).toLocaleString()}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

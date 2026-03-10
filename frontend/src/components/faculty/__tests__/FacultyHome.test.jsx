@@ -14,6 +14,15 @@ jest.mock('react-router-dom', () => ({
 
 describe('FacultyHome Basic Tests', () => {
 
+  beforeEach(() => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([])
+      })
+    );
+  });
+
   const setup = () => {
     return render(
       <MemoryRouter>
@@ -22,33 +31,17 @@ describe('FacultyHome Basic Tests', () => {
     );
   };
 
-  test('renders the welcome header', () => {
+  test('renders the welcome header', async () => {
     setup();
-    expect(screen.getByText(/Welcome/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Dashboard Overview/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Welcome back, Faculty/i)).toBeInTheDocument();
   });
 
-  test('displays pending requests card with correct value', () => {
+  test('displays weekly workload card with correct value', async () => {
     setup();
-    expect(screen.getByText(/Pending Requests/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/3/)[0]).toBeInTheDocument();
-    expect(screen.getByText(/Total Needed/i)).toBeInTheDocument();
-  });
-
-  test('displays weekly workload card with correct value', () => {
-    setup();
-    expect(screen.getByText(/Weekly Workload/i)).toBeInTheDocument();
-    expect(screen.getByText(/16/i)).toBeInTheDocument();
-    expect(screen.getByText(/4 Theory/i)).toBeInTheDocument();
-  });
-
-  test('navigates to requests page when pending requests card is clicked', () => {
-    setup();
-
-
-    const requestsCard = screen.getByText(/Pending Requests/i).closest('.modern-card');
-    fireEvent.click(requestsCard);
-
-    expect(mockedUsedNavigate).toHaveBeenCalledWith('/faculty/requests');
+    expect(await screen.findByText(/Weekly Workload/i)).toBeInTheDocument();
+    expect(await screen.findByText(/16/i)).toBeInTheDocument();
+    expect(await screen.findByText(/4 Theory/i)).toBeInTheDocument();
   });
 
 });

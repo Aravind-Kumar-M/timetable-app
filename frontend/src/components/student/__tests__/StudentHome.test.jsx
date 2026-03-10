@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, useOutletContext } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import StudentHome from '../StudentHome';
@@ -13,21 +13,43 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock Date for consistent tests (Monday 9 AM)
-const RealDate = Date;
-global.Date = class extends RealDate {
+const RealDate = global.Date;
+const mockDate = new Date('2026-03-09T09:00:00Z');
+
+const setupDateMock = () => {
+  global.Date = class extends RealDate {
     constructor(date) {
-        if (date) return new RealDate(date);
-        return new RealDate('2026-03-09T09:00:00Z');
+      if (date) return new RealDate(date);
+      return mockDate;
     }
     static now() {
-        return new RealDate('2026-03-09T09:00:00Z').getTime();
+      return mockDate.getTime();
     }
+  };
 };
 
 describe('StudentHome Basic Tests', () => {
 
   beforeEach(() => {
+    setupDateMock();
     jest.clearAllMocks();
+    global.fetch = jest.fn((url) => {
+      // Mock for notifications
+      if (url.includes('/api/notifications')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([])
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([])
+      });
+    });
+  });
+
+  afterEach(() => {
+    global.Date = RealDate;
   });
 
   test('renders standard welcome message for normal students', () => {
@@ -85,6 +107,8 @@ describe('StudentHome Basic Tests', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByText('78%')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('78%')).toBeInTheDocument();
+    });
   });
 });

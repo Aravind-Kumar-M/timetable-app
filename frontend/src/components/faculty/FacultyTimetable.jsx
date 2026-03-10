@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Download, Loader2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Download, Loader2, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import '../admin/AmritaTimetable.css';
 
 const FacultyTimetable = () => {
+    const timetableRef = useRef(null);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [loading, setLoading] = useState(true);
     const [timetableData, setTimetableData] = useState(null);
@@ -18,6 +20,103 @@ const FacultyTimetable = () => {
         fetchMyTimetable();
     }, []);
 
+    const handleExportImage = async () => {
+        if (!timetableRef.current) return;
+
+        try {
+            const canvas = await html2canvas(timetableRef.current, {
+                scale: 2, // Slightly reduced scale for smaller file size
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                onclone: (clonedDoc) => {
+                    const style = clonedDoc.createElement('style');
+                    style.innerHTML = `
+                        /* Global Resets */
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            animation: none !important;
+                            transition: none !important;
+                            opacity: 1 !important;
+                            filter: none !important;
+                            transform: none !important;
+                        }
+                        
+                        /* Backgrounds */
+                        .amrita-timetable-container {
+                            background-color: #F9FAFB !important;
+                        }
+                        .timetable-grid-wrapper, .course-info-table {
+                            background-color: #ffffff !important;
+                        }
+                        .day-cell, .timetable-config {
+                            background-color: #f9e79f !important;
+                        }
+                        .lunch-break-cell {
+                            background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%) !important;
+                            color: #ffffff !important;
+                            font-weight: bold !important;
+                        }
+                        .timetable-grid thead th, .course-table-section h3, .course-info-table th {
+                            background-color: #6b9e4d !important;
+                            color: #ffffff !important;
+                            font-weight: bold !important;
+                        }
+                        .timetable-header {
+                            background: linear-gradient(135deg, #6b9e4d 0%, #4a7c3a 100%) !important;
+                            color: #ffffff !important;
+                            font-weight: bold !important;
+                        }
+
+                        /* Typography Colors - Forcing Hex Values */
+                        h1, h2, h3, h4, .text-main, td, th, span, div, label {
+                            color: #1f2937 !important; 
+                        }
+                        .text-muted, p {
+                            color: #6b7280 !important;
+                        }
+                        .dashboard-fade-in h2 {
+                            color: #1f2937 !important;
+                        }
+                        .page-header p {
+                            color: #6b7280 !important;
+                        }
+                        /* Borders */
+                        table, th, td {
+                            border-color: #D1D5DB !important;
+                        }
+                        .timetable-grid th, .timetable-grid td {
+                            border: 1px solid #333333 !important;
+                            color: #1f2937 !important;
+                        }
+                    `;
+                    clonedDoc.head.appendChild(style);
+
+                    // Hide the export button in the image
+                    const exportBtn = clonedDoc.querySelector('.export-btn');
+                    if (exportBtn) exportBtn.style.display = 'none';
+                }
+            });
+
+            // Convert canvas to blob for download (more efficient than data URL for large images)
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `timetable_${facultyDetails?.name?.replace(/\s+/g, '_') || 'faculty'}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+            }, 'image/png');
+        } catch (error) {
+            console.error('Error exporting image:', error);
+            alert('Failed to generate image. Please try again.');
+        }
+    };
+
     const fetchMyTimetable = async () => {
         try {
             setLoading(true);
@@ -26,7 +125,7 @@ const FacultyTimetable = () => {
                 credentials: 'include'
             });
             const data = await response.json();
-            
+
             if (data.success) {
                 setFacultyDetails({
                     name: data.facultyName,
@@ -176,7 +275,7 @@ const FacultyTimetable = () => {
     }
 
     return (
-        <div className="dashboard-fade-in amrita-timetable-container" style={{ width: '100%', paddingBottom: '2rem' }}>
+        <div ref={timetableRef} className="dashboard-fade-in amrita-timetable-container" style={{ width: '100%', paddingBottom: '2rem' }}>
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>My Timetable</h2>
@@ -184,10 +283,12 @@ const FacultyTimetable = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button
+                        className="export-btn"
+                        onClick={handleExportImage}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 500, transition: 'var(--transition)', boxShadow: 'var(--shadow-sm)' }}
                     >
-                        <Download size={16} />
-                        Export PDF
+                        <ImageIcon size={16} />
+                        Export Image
                     </button>
                 </div>
             </div>

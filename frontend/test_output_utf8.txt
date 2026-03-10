@@ -1,0 +1,4 @@
+﻿
+> time-table@0.0.0 test
+> jest src/components/faculty/__tests__/FacultyRequests.test.jsx --verbose --no-colors
+

@@ -9,16 +9,17 @@ describe('StudentTimetable Basic Tests', () => {
     test('renders the page header and download button', async () => {
         render(<StudentTimetable />);
         expect(screen.getByText(/Loading your personal timetable/i)).toBeInTheDocument();
-        
+
         await waitFor(() => {
             expect(screen.getByText(/Class Timetable/i)).toBeInTheDocument();
         });
-        expect(screen.getByRole('button', { name: /Export PDF/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Export Image/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Refresh/i })).toBeInTheDocument();
     });
 
     test('renders all day headers (Monday-Friday)', async () => {
         render(<StudentTimetable />);
-        
+
         await waitFor(() => {
             expect(screen.getByText('Monday')).toBeInTheDocument();
         });
@@ -31,7 +32,7 @@ describe('StudentTimetable Basic Tests', () => {
 
     test('renders all time slot headers', async () => {
         render(<StudentTimetable />);
-        
+
         await waitFor(() => {
             expect(screen.getByText('Monday')).toBeInTheDocument();
         });
@@ -44,7 +45,7 @@ describe('StudentTimetable Basic Tests', () => {
 
     test('renders course codes and room numbers (if any)', async () => {
         render(<StudentTimetable />);
-        
+
         await waitFor(() => {
             expect(screen.getByText('Monday')).toBeInTheDocument();
         });

@@ -14,8 +14,8 @@ const AdminRequests = () => {
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            const url = filter === 'All' 
-                ? '/api/slot-change-requests' 
+            const url = filter === 'All'
+                ? '/api/slot-change-requests'
                 : `/api/slot-change-requests?status=${filter}`;
             const res = await fetch(url, {
                 credentials: 'include'
@@ -40,7 +40,7 @@ const AdminRequests = () => {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     status: 'Approved',
                     adminNote: 'Approved'
                 })
@@ -52,7 +52,12 @@ const AdminRequests = () => {
                 alert(data.message || 'Request approved and classroom assigned');
                 fetchRequests();
             } else {
-                alert(`Error: ${data.message || 'Failed to approve request'}`);
+                if (data.conflicts && data.conflicts.length > 0) {
+                    const conflictMsgs = data.conflicts.map(c => `- ${c.message}`).join('\n');
+                    alert(`Cannot approve due to scheduling conflicts:\n\n${conflictMsgs}`);
+                } else {
+                    alert(`Error: ${data.message || 'Failed to approve request'}`);
+                }
             }
         } catch (error) {
             console.error('Error approving request:', error);
@@ -101,7 +106,7 @@ const AdminRequests = () => {
         };
         const style = styles[status] || styles.Pending_Admin;
         const Icon = style.icon;
-        
+
         return (
             <span style={{
                 fontSize: '0.85rem',
@@ -177,9 +182,9 @@ const AdminRequests = () => {
                             borderRadius: 'var(--radius-lg)',
                             boxShadow: 'var(--shadow-md)',
                             border: '1px solid var(--border)',
-                            borderLeft: req.status === 'Pending_Admin' ? '4px solid #3b82f6' : 
-                                       req.status === 'Approved' ? '4px solid #22C55E' : 
-                                       req.status === 'Rejected' ? '4px solid #ef4444' : '4px solid #fbbf24'
+                            borderLeft: req.status === 'Pending_Admin' ? '4px solid #3b82f6' :
+                                req.status === 'Approved' ? '4px solid #22C55E' :
+                                    req.status === 'Rejected' ? '4px solid #ef4444' : '4px solid #fbbf24'
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div>
@@ -193,15 +198,15 @@ const AdminRequests = () => {
                                 {getStatusBadge(req.status)}
                             </div>
 
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: '1fr auto 1fr', 
-                                gap: '1.5rem', 
-                                alignItems: 'center', 
-                                marginTop: '1.5rem', 
-                                padding: '1.5rem', 
-                                background: 'var(--bg)', 
-                                borderRadius: 'var(--radius-md)' 
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr auto 1fr',
+                                gap: '1.5rem',
+                                alignItems: 'center',
+                                marginTop: '1.5rem',
+                                padding: '1.5rem',
+                                background: 'var(--bg)',
+                                borderRadius: 'var(--radius-md)'
                             }}>
                                 <div>
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem', fontWeight: 600 }}>CURRENT SLOT</div>
@@ -224,12 +229,12 @@ const AdminRequests = () => {
                             )}
 
                             {req.adminNote && (
-                                <div style={{ 
-                                    marginTop: '1rem', 
-                                    padding: '1rem', 
-                                    background: req.status === 'Approved' ? '#DCFCE7' : '#fee2e2', 
-                                    border: `1px solid ${req.status === 'Approved' ? '#22C55E' : '#ef4444'}`, 
-                                    borderRadius: 'var(--radius-md)' 
+                                <div style={{
+                                    marginTop: '1rem',
+                                    padding: '1rem',
+                                    background: req.status === 'Approved' ? '#DCFCE7' : '#fee2e2',
+                                    border: `1px solid ${req.status === 'Approved' ? '#22C55E' : '#ef4444'}`,
+                                    borderRadius: 'var(--radius-md)'
                                 }}>
                                     <div style={{ fontSize: '0.8rem', fontWeight: 600, color: req.status === 'Approved' ? '#15803D' : '#991b1b', marginBottom: '0.5rem' }}>ADMIN NOTE</div>
                                     <div style={{ fontSize: '0.95rem', color: req.status === 'Approved' ? '#15803D' : '#991b1b' }}>{req.adminNote}</div>

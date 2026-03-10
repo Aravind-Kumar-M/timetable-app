@@ -7,7 +7,6 @@ const FacultyDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [userName, setUserName] = useState('Faculty');
-    const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
         const email = localStorage.getItem('lastLoginEmail');
@@ -18,27 +17,7 @@ const FacultyDashboard = () => {
                 setUserName(user.fullName);
             }
         }
-
-        // Initial fetch
-        fetchPendingRequests();
-
-        // Poll every 30 seconds
-        const interval = setInterval(fetchPendingRequests, 30000);
-        return () => clearInterval(interval);
     }, []);
-
-    const fetchPendingRequests = async () => {
-        try {
-            const res = await fetch('/api/requests/all');
-            const data = await res.json();
-            if (data.success) {
-                const pending = data.requests.filter(r => r.status === 'Pending').length;
-                setPendingCount(pending);
-            }
-        } catch (error) {
-            console.error("Error fetching pending requests:", error);
-        }
-    };
 
     const handleLogout = () => {
         navigate('/');
@@ -47,10 +26,9 @@ const FacultyDashboard = () => {
     const menuItems = [
         { path: '/faculty', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/faculty/timetable', label: 'Timetable', icon: <Calendar size={20} /> },
-        { path: '/faculty/requests', label: 'Rescheduling Requests', icon: <ClipboardList size={20} />, badge: pendingCount },
-        { path: '/faculty/leave', label: 'Apply Leave', icon: <CalendarPlus size={20} /> },
         { path: '/faculty/enquiry', label: 'Free Slot Enquiry', icon: <Search size={20} /> },
         { path: '/faculty/all-timetables', label: 'All Timetables', icon: <List size={20} /> },
+        { path: '/faculty/requests', label: 'Rescheduling Requests', icon: <ClipboardList size={20} /> },
     ];
 
     return (

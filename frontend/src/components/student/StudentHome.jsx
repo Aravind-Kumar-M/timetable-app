@@ -47,11 +47,29 @@ const StudentHome = () => {
     const [loading, setLoading] = useState(true);
     const targetAttendance = 78;
 
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: "Class rescheduled: Mathematics to 10:00 AM", time: "2 hrs ago" },
-        { id: 2, text: "New assignment uploaded for Physics", time: "4 hrs ago" },
-        { id: 3, text: "Library books due tomorrow", time: "1 day ago" }
-    ]);
+    const [notifications, setNotifications] = useState([]);
+
+    useEffect(() => {
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            // Since we don't have dept/section readily available in the home component props,
+            // the backend should ideally find it from the user's active assignments.
+            // For now, we'll call the endpoint. If backend filtering isn't perfect yet,
+            // we'll fix it there.
+            const res = await fetch('/api/notifications/all', { credentials: 'include' });
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setNotifications(data);
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
 
     useEffect(() => {
         setTimeout(() => {
@@ -67,12 +85,12 @@ const StudentHome = () => {
             if (data && data.success && data.timetable) {
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const today = days[new Date().getDay()];
-                
+
                 // Filter slots for today and sort by slot number
                 const slots = data.timetable.timetableSlots
                     .filter(s => s.day === today && !s.isSpanContinuation)
                     .sort((a, b) => a.slotNumber - b.slotNumber);
-                
+
                 // Map to display format
                 const formatted = slots.map(s => {
                     const slotTimes = [
@@ -87,7 +105,7 @@ const StudentHome = () => {
                         { start: '04:00 PM', end: '05:00 PM' }
                     ];
                     const time = slotTimes[s.slotNumber - 1] || { start: 'TBD', end: '' };
-                    
+
                     const course = data.timetable.courses.find(c => c.courseCode === s.courseCode);
                     return {
                         time: time.start,
@@ -110,6 +128,18 @@ const StudentHome = () => {
     const clearNotifications = () => {
         setNotifications([]);
         setShowNotifications(false);
+    };
+
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return date.toLocaleDateString();
     };
 
     // Derive dynamic color
@@ -144,9 +174,9 @@ const StudentHome = () => {
                             <div className="notification-list">
                                 {notifications.length > 0 ? (
                                     notifications.map(note => (
-                                        <div key={note.id} className="notification-item">
-                                            <div className="note-text">{note.text}</div>
-                                            <div className="note-time">{note.time}</div>
+                                        <div key={note._id} className="notification-item">
+                                            <div className="note-text">{note.message}</div>
+                                            <div className="note-time">{formatTime(note.createdAt)}</div>
                                         </div>
                                     ))
                                 ) : (
@@ -198,15 +228,15 @@ const StudentHome = () => {
                             <Clock size={20} color="var(--student-theme)" /> Today's Classes
                         </h3>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); fetchTodayClasses(); }} 
+                            <button
+                                onClick={(e) => { e.stopPropagation(); fetchTodayClasses(); }}
                                 disabled={loading}
-                                style={{ 
-                                    background: 'var(--student-theme-light)', 
-                                    color: 'var(--student-theme)', 
-                                    border: 'none', 
-                                    padding: '0.4rem', 
-                                    borderRadius: 'var(--radius-md)', 
+                                style={{
+                                    background: 'var(--student-theme-light)',
+                                    color: 'var(--student-theme)',
+                                    border: 'none',
+                                    padding: '0.4rem',
+                                    borderRadius: 'var(--radius-md)',
                                     cursor: loading ? 'not-allowed' : 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
