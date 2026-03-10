@@ -7,6 +7,7 @@ module.exports = {
 
   moduleNameMapper: {
     "\\.(css|scss|sass)$": "identity-obj-proxy",
+    "^.+/services/timetableService$": "<rootDir>/src/services/__mocks__/timetableService.js",
   },
 
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],

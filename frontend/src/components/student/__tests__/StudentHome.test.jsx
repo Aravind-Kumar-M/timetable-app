@@ -12,6 +12,18 @@ jest.mock('react-router-dom', () => ({
   useOutletContext: jest.fn(),
 }));
 
+// Mock Date for consistent tests (Monday 9 AM)
+const RealDate = Date;
+global.Date = class extends RealDate {
+    constructor(date) {
+        if (date) return new RealDate(date);
+        return new RealDate('2026-03-09T09:00:00Z');
+    }
+    static now() {
+        return new RealDate('2026-03-09T09:00:00Z').getTime();
+    }
+};
+
 describe('StudentHome Basic Tests', () => {
 
   beforeEach(() => {
