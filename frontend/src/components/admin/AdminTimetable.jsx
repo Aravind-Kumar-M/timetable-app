@@ -28,6 +28,7 @@ const AdminTimetable = () => {
   useEffect(() => {
     loadConstraints();
     fetchAssignments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.academicYear, config.semester, config.department]);
 
   // Find matching assignment when config or assignments change

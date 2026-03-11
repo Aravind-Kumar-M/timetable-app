@@ -6,7 +6,7 @@ import './student.css';
 const StudentDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+    const theme = localStorage.getItem('theme') || 'light';
 
     // Compute user info from localStorage (no need for state + effect)
     const email = localStorage.getItem('lastLoginEmail');

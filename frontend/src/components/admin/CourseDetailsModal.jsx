@@ -11,6 +11,7 @@ const CourseDetailsModal = ({ isOpen, onClose, course }) => {
         if (isOpen && course) {
             fetchCourseData();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, course]);
 
     const fetchCourseData = async () => {

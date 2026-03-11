@@ -6,7 +6,11 @@ import './faculty.css';
 const FacultyDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [userName, setUserName] = useState('Faculty');
+    // Compute user name directly from localStorage to avoid sync effect warning
+    const email = localStorage.getItem('lastLoginEmail');
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.email === email);
+    const userName = user ? user.fullName : 'Faculty Member';
     const [pendingCount, setPendingCount] = useState(0);
 
     const fetchPendingRequests = async () => {
@@ -23,15 +27,6 @@ const FacultyDashboard = () => {
     };
 
     useEffect(() => {
-        const email = localStorage.getItem('lastLoginEmail');
-        if (email) {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => u.email === email);
-            if (user) {
-                setUserName(user.fullName);
-            }
-        }
-
         // Initial fetch
         fetchPendingRequests();
 
