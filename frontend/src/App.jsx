@@ -17,8 +17,6 @@ import FacultyDashboard from './components/faculty/FacultyDashboard'
 import FacultyHome from './components/faculty/FacultyHome'
 import FacultyTimetable from './components/faculty/FacultyTimetable'
 import FacultyRequests from './components/faculty/FacultyRequests'
-import FacultyLeave from './components/faculty/FacultyLeave'
-import FacultySlotEnquiry from './components/faculty/FacultySlotEnquiry'
 import FacultySlotRequests from './components/faculty/FacultySlotRequests'
 import FacultyAllTimetables from './components/faculty/FacultyAllTimetables'
 import StudentDashboard from './components/student/StudentDashboard'
@@ -55,8 +53,6 @@ function App() {
           <Route index element={<FacultyHome />} />
           <Route path="timetable" element={<FacultyTimetable />} />
           <Route path="requests" element={<FacultyRequests />} />
-          <Route path="leave" element={<FacultyLeave />} />
-          <Route path="enquiry" element={<FacultySlotEnquiry />} />
           <Route path="all-timetables" element={<FacultyAllTimetables />} />
         </Route>
 

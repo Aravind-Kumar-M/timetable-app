@@ -49,8 +49,6 @@ const FacultyDashboard = () => {
         { path: '/faculty', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/faculty/timetable', label: 'Timetable', icon: <Calendar size={20} /> },
         { path: '/faculty/requests', label: 'Rescheduling Requests', icon: <ClipboardList size={20} />, badge: pendingCount },
-        { path: '/faculty/leave', label: 'Apply Leave', icon: <CalendarPlus size={20} /> },
-        { path: '/faculty/enquiry', label: 'Free Slot Enquiry', icon: <Search size={20} /> },
         { path: '/faculty/all-timetables', label: 'All Timetables', icon: <List size={20} /> },
     ];
 
