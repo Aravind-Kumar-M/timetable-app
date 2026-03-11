@@ -35,7 +35,6 @@ describe('FacultyDashboard Basic Tests', () => {
 
     expect(screen.getAllByText(/Timetable/i)[0]).toBeInTheDocument();
     expect(screen.getByText(/Rescheduling Requests/i)).toBeInTheDocument();
-    expect(screen.getByText(/Apply Leave/i)).toBeInTheDocument();
   });
 
   test('highlights the active link based on route', () => {

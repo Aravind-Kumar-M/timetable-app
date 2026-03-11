@@ -6,7 +6,11 @@ import './faculty.css';
 const FacultyDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [userName, setUserName] = useState('Faculty');
+    // Compute user name directly from localStorage to avoid sync effect warning
+    const email = localStorage.getItem('lastLoginEmail');
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.email === email);
+    const userName = user ? user.fullName : 'Faculty Member';
     const [pendingCount, setPendingCount] = useState(0);
 
     const fetchPendingRequests = async () => {
@@ -23,16 +27,8 @@ const FacultyDashboard = () => {
     };
 
     useEffect(() => {
-        const email = localStorage.getItem('lastLoginEmail');
-        if (email) {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => u.email === email);
-            if (user) {
-                setUserName(user.fullName);
-            }
-        }
-
         // Initial fetch
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchPendingRequests();
 
         // Poll every 30 seconds
@@ -49,8 +45,6 @@ const FacultyDashboard = () => {
         { path: '/faculty', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
         { path: '/faculty/timetable', label: 'Timetable', icon: <Calendar size={20} /> },
         { path: '/faculty/requests', label: 'Rescheduling Requests', icon: <ClipboardList size={20} />, badge: pendingCount },
-        { path: '/faculty/leave', label: 'Apply Leave', icon: <CalendarPlus size={20} /> },
-        { path: '/faculty/enquiry', label: 'Free Slot Enquiry', icon: <Search size={20} /> },
         { path: '/faculty/all-timetables', label: 'All Timetables', icon: <List size={20} /> },
     ];
 

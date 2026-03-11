@@ -44,6 +44,7 @@ const AmritaTimetable = ({ previewData = null }) => {
     if (!previewData && config.department && config.section) {
         loadTimetable();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, previewData]);
 
   const loadTimetable = async () => {

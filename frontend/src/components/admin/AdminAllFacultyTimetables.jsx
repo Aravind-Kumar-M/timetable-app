@@ -287,7 +287,7 @@ const AdminAllFacultyTimetables = () => {
                     setProgress({ done: Math.min(i + batchSize, filtered.length), total: filtered.length });
                 }
                 setTimetables(results);
-            } catch (err) {
+            } catch {
                 setError('Failed to load faculty or timetable data. Make sure the backend is running.');
             } finally {
                 setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Calendar, List, Moon, Sun, LogOut, Clock } from 'lucide-react';
 import './student.css';
@@ -6,7 +6,7 @@ import './student.css';
 const StudentDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+    const theme = localStorage.getItem('theme') || 'light';
 
     // Compute user info from localStorage (no need for state + effect)
     const email = localStorage.getItem('lastLoginEmail');

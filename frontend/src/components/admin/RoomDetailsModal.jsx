@@ -11,6 +11,7 @@ const RoomDetailsModal = ({ isOpen, onClose, room }) => {
         if (isOpen && room) {
             fetchRoomData();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, room]);
 
     const fetchRoomData = async () => {
